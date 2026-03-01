@@ -16,6 +16,7 @@ var htmlInfoStart = readHTML('./infoStart.html');
 var htmlInfoStop = readHTML('./infoStop.html');
 var htmlFooter = readHTML('./footer.html');
 var htmlBottom = readHTML('./bottom.html');
+var htmlLoginContainer = readHTML('./login_menu.html')
 
 router.get('/', (request, response) => {
 
@@ -24,7 +25,7 @@ router.get('/', (request, response) => {
     response.write(htmlHeader);
     response.write(htmlMenu);
     response.write(htmlInfoStart);
-
+    response.write(htmlLoginContainer);
 
     response.write(htmlInfoStop);
     response.write(htmlFooter);
