@@ -1,16 +1,23 @@
-.loginContainer {
-    display: flex;
-    /* Gör containern till en flexbox */
-    justify-content: center;
-    /* Centrerar horisontellt (vänster till höger) */
-    align-items: center;
-    /* Centrerar vertikalt (uppifrån och ner) */
-    min-height: 20vh;
-    /* Gör så att containern tar upp hela skärmens höjd */
+#loginLayer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background-color: #98e6b2;
+    width: 250px;
+    padding: 10px;
+    border: #294e13 2px dashed;
+    display: none;
 }
 
-.loginMenu {
-    display: flex;
+
+#loginMenu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    display: none;
     flex-direction: column;
     /* Staplar elementen vertikalt */
     gap: 10px;

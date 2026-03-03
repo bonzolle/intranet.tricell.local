@@ -7,16 +7,87 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Tricell Laboratories Inc, Åland</title>
 
-	<script language="JavaScript" type="text/javascript" src="scripts/leftmenu.js"></script>
+	<script language="JavaScript" type="text/javascript" src="/scripts/leftmenu.js"></script>
+	<script language="JavaScript" src="/scripts/MD5.js"></script>
 
-	<link rel="stylesheet" href="css/index.css" /><!-- Gemensam CSS -->
-	<link rel="stylesheet" href="css/leftmenu.css" />
-	<link rel="stylesheet" href="css/loginmenu.css" />
+	<script language="JavaScript">
+		let keys = { t: false, r: false };
+
+		addEventListener("keydown", (event) => {
+			if (event.key === "t") {
+				keys.t = true;
+			}
+			if (event.key === "r") {
+				keys.r = true;
+			}
+			if (keys.t && keys.r) {
+				document.getElementById("loginMenu").style.display = "flex";
+			}
+		});
+
+		addEventListener("keyup", (event) => {
+			if (event.key === "t") {
+				keys.t = false;
+			}
+			if (event.key === "r") {
+				keys.r = false;
+			}
+		});
+
+		document.addEventListener("keydown", event => {
+			if (event.key == "Escape") {
+				document.getElementById("loginMenu").style.display = "none";
+			}
+		});
+
+		function hashing() {
+			document.form.fpassword.value = hex_md5(document.form.fpassword.value);
+		}
+
+		function formCheck() {
+			if (document.form.femployeecode.value == "") {
+				alert("You must give an employee code!");
+				return false;
+			}
+			if (document.form.fpassword.value == "") {
+				alert("You must give a password!");
+				return false;
+			}
+		}
+	</script>
+	<link rel="stylesheet" href="/css/index.css" /><!-- Gemensam CSS -->
+	<link rel="stylesheet" href="/css/leftmenu.css" />
+	<link rel="stylesheet" href="/css/loginmenu.css" />
 
 
 	<!-- Egna CSS-definitioner som berör endast denna sida -->
-	<style>
+	<!-- Egna CSS-definitioner som berör endast denna sida -->
+	<style type="text/css">
+		input[type=text],
+		input[type=date],
+		input[type=file],
+		select,
+		textarea,
+		input[type=password] {
+			padding: 5px 5px;
+			box-sizing: border-box;
+			border: 1px solid black;
+			background-color: #d7ecff;
+			font-size: 16px;
+		}
 
+		input[type="file"] {
+			color: transparent;
+			width: 166px;
+		}
+
+		select option {
+			margin: 40px;
+			background: rgba(0, 0, 0, 0.3);
+			color: #fff;
+			font-size: 16px;
+			text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+		}
 	</style>
 
 </head>
@@ -42,3 +113,19 @@
 		<b><a href="http://localhost:3000/api/personnelregistry">Personnel Registry</a></b>
 	</div>
 	<!------------------------- Left-menu slut ------------------------------>
+
+	<!-- ========= Hidden login prompt ============-->
+	<div id="loginMenu">
+		<strong>Login to Tricell Laboratories:</strong>
+		<form name="form" action="http://localhost:3000/api/login" onSubmit="return formCheck()" method="POST">
+			<p>
+				Employee Code: <input type="text" name="femployeecode" id="femployeecode" size="7" maxlength="7" />
+				<p />
+				Password: <input type="password" name="fpassword" id="fpassword" size="7" maxlength="7" />
+			<p>
+				<input type="submit" class="button" value="Login" onClick="javascript:hashing()" /><input class="button"
+					type="reset" value="Reset Form" />
+			<p>
+		</form>
+	</div>
+	<!---------------------Hidden login-prompt slut ------------------------->

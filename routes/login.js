@@ -16,22 +16,96 @@ var htmlInfoStart = readHTML('./infoStart.html');
 var htmlInfoStop = readHTML('./infoStop.html');
 var htmlFooter = readHTML('./footer.html');
 var htmlBottom = readHTML('./bottom.html');
-var htmlLoginContainer = readHTML('./login_menu.html')
 
-router.get('/', (request, response) => {
 
-    response.writeHead(200, { 'Content-Type': 'text/html' });
-    response.write(htmlHead);
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
-    response.write(htmlLoginContainer);
+router.post('/', (req, res) => {
 
-    response.write(htmlInfoStop);
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end();
+    const { femployeecode, fpassword } = req.body;
 
+    console.log(req.body)
+
+    // Hämta användaren från tabellen 'employees'
+    // I din bild såg kolumnnamnet ut att vara 'employee_code' eller liknande
+    try {
+
+        var htmloutput = ""
+        // 1. Förbered frågan
+        const stmt = db.prepare("SELECT * FROM employees WHERE employeeCode = ?");
+
+        // 2. Kör frågan (get hämtar första matchande raden)
+        const row = stmt.get(femployeecode);
+        const newAttempts = row.loginTimes + 1;
+        console.log(row)
+        if (!row) {
+            htmloutput += `<div class="loginresponse"> Användaren hittades inte </div>`;
+            return renderLoginResponse(res, `<div class="loginresponse">${htmloutput}</div>`);
+        } else if (fpassword === row.password && row.lockout === 0) {
+
+            // ökar antalet inlogningsantal
+            db.prepare("UPDATE employees SET loginTimes = ? WHERE employeeCode = ?")
+                .run(newAttempts, femployeecode);
+            // nollställer antalet felaktig inloggningar eftersom inloggningen lyckades
+            db.prepare("UPDATE employees SET failedLoginTimes = 0 WHERE employeeCode = ?").run(femployeecode);
+
+            let date = Date.now();
+            let dateObj = new Date(date);
+            let day = dateObj.getDate();
+            let month = dateObj.getMonth() + 1;
+            let year = dateObj.getFullYear();
+            let str_lastlogin = day + "." + month + "." + year
+
+            const query = db.prepare("UPDATE employees SET lastLogin = ? WHERE employeeCode = ?")
+
+            query.run(str_lastlogin, femployeecode)
+            req.session.userId = row.employeeCode;
+            // SPARA och sen REDIRECT (Detta skickar headers)
+            return req.session.save((err) => {
+                if (err) return res.status(500).send("Sessionsfel");
+                res.redirect('./admin'); // <--- Detta är det enda svaret som skickas
+            });
+
+
+        } else if (fpassword === row.password && row.lockout === 1) {
+
+            htmloutput += `<div class="loginresponse"> Ditt konto är låst. </div>`;
+            return renderLoginResponse(res, `<div class="loginresponse">${htmloutput}</div>`);
+        } else {
+            const newFailedAttempts = row.failedLoginTimes + 1;
+            const maxAttempts = 3;
+
+            if (newFailedAttempts >= maxAttempts) { // Lås kontot om man försökt för många gånger
+                db.prepare("UPDATE employees SET failedLoginTimes = ?, lockout = 1 WHERE employeeCode = ?")
+                    .run(newFailedAttempts, femployeecode);
+                htmloutput += `<div class="loginresponse" style="color:red;">För många misslyckade försök. Kontot har låsts.</div>`;
+                return renderLoginResponse(res, `<div class="loginresponse">${htmloutput}</div>`);
+            } else {
+                // Uppdatera bara antal försök
+                db.prepare("UPDATE employees SET failedLoginTimes = ? WHERE employeeCode = ?")
+                    .run(newFailedAttempts, femployeecode);
+                htmloutput += `<div class="loginresponse">Fel lösenord. Försök kvar: ${maxAttempts - newAttempts}</div>`;
+
+                return renderLoginResponse(res, `<div class="loginresponse">${htmloutput}</div>`);
+
+            }
+        }
+        // res.status(401).send("Fel lösenord");
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Ett internt fel uppstod");
+    }
+    console.log("Kollar session:", req.session); // Se vad som finns i minnet
+    function renderLoginResponse(res, message) {
+        res.write(htmlHead);
+        res.write(htmlHeader);
+        res.write(htmlMenu);
+        res.write(htmlInfoStart);
+        res.write(message);
+        res.write(htmlInfoStop);
+        res.write(htmlFooter);
+        res.write(htmlBottom);
+        res.end();
+    }
 });
 
 module.exports = router;
