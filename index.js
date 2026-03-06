@@ -6,7 +6,7 @@ app.use(express.urlencoded({ extended: true }));
 const session = require('express-session');
 const SessionStore = require('better-sqlite3-session-store')(session);
 const Database = require('better-sqlite3');
-
+const checkAuth = require('./authMiddleware.js'); // Se till att sökvägen stämmer
 const db = new Database('./users.db'); // Din befintliga DB
 
 app.use(session({
@@ -37,16 +37,17 @@ const admin = require('./routes/admin');
 app.use(express.static('./public'));
 
 const readHTML = require('./readHTML.js');
-var htmlHead = readHTML('./head.html');
-var htmlHeader = readHTML('./header.html');
-var htmlMenu = readHTML('./menu.html');
-var htmlInfoStart = readHTML('./infoStart.html');
+var htmlHead = readHTML('./masterframe/head.html');
+var htmlHeader = readHTML('./masterframe/header.html');
+var htmlMenu = readHTML('./masterframe/menu.html');
+var htmlInfoStart = readHTML('./masterframe/infoStart.html');
 var htmlIndex = readHTML('./public/texts/index.html');
-var htmlInfoStop = readHTML('./infoStop.html');
-var htmlFooter = readHTML('./footer.html');
-var htmlBottom = readHTML('./bottom.html');
+var htmlInfoStop = readHTML('./masterframe/infoStop.html');
+var htmlFooter = readHTML('./masterframe/footer.html');
+var htmlBottom = readHTML('./masterframe/bottom.html');
 
 app.get('/', function (request, response) {
+
     response.send(htmlHead + htmlHeader + htmlMenu + htmlInfoStart + htmlIndex + htmlInfoStop + htmlFooter + htmlBottom);
     response.end();
 });
@@ -55,7 +56,10 @@ app.use('/api/info', info);
 app.use('/api/personnelregistry', personnelregistry);
 app.use('/api/login', login);
 app.use('/api/virusdatabase', virusdatabase);
-app.use('/api/admin', admin)
+
+// Allt under denna rad kräver nu inloggning!
+app.use(checkAuth);
+app.use('/api/admin', admin);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

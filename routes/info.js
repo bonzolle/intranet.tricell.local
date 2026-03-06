@@ -9,18 +9,18 @@ const path = require("path");
 // Läs in layouten
 router.use(express.static('./public'));
 
-var htmlHead = readHTML('./head.html');
-var htmlHeader = readHTML('./header.html');
-// var htmlMenu = readHTML('./menu.html');    
-var htmlInfoStart = readHTML('./infoStart.html');
-var htmlInfoStop = readHTML('./infoStop.html');
-var htmlFooter = readHTML('./footer.html');
-var htmlBottom = readHTML('./bottom.html');
+var htmlHead = readHTML('./masterframe/head.html');
+var htmlHeader = readHTML('./masterframe/header.html');
+// var htmlMenu = readHTML('./masterframe/menu.html');    
+var htmlInfoStart = readHTML('./masterframe/infoStart.html');
+var htmlInfoStop = readHTML('./masterframe/infoStop.html');
+var htmlFooter = readHTML('./masterframe/footer.html');
+var htmlBottom = readHTML('./masterframe/bottom.html');
 
 
 // --------------------- Default-sida -------------------------------
 router.get('/', function (request, response) {
-    var htmlMenu = readHTML('./menu.html');
+    var htmlMenu = readHTML('./masterframe/menu.html');
 
     response.write(htmlHead);
     response.write(htmlHeader);
@@ -42,10 +42,10 @@ router.get('/:infotext', function (request, response) {
     const infotext = request.params.infotext;
     if (infotext == "") {
         infotext = 'index';
-        var htmlMenu = readHTML('./menu.html');
+        var htmlMenu = readHTML('./masterframe/menu.html');
     }
     else {
-        var htmlMenu = readHTML('./menu_back.html');
+        var htmlMenu = readHTML('./masterframe/menu_back.html');
     }
 
     response.write(htmlHead);

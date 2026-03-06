@@ -5,7 +5,7 @@ router.use(express.json());
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'tricell_intranet.db');
+const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
 const db = new Database(dbPath);
 
 
@@ -13,19 +13,20 @@ console.log("Uppdateringen klar!");
 
 // Läs in layouten
 router.use(express.static('./public'));
-var htmlHead = readHTML('./head.html');
-var htmlHeader = readHTML('./header.html');
-var htmlMenu = readHTML('./menu_back.html');
-var htmlInfoStart = readHTML('./infoStart.html');
-var htmlInfoStop = readHTML('./infoStop.html');
-var htmlFooter = readHTML('./footer.html');
-var htmlBottom = readHTML('./bottom.html');
-var htmlPersonnelStart = readHTML('./personnelregistrystart.html')
-var htmlPersonnelStop = readHTML('./personnelregistrystop.html')
+var htmlHead = readHTML('./masterframe/head.html');
+var htmlHeader = readHTML('./masterframe/header.html');
+var htmlMenu = readHTML('./masterframe/menu_back.html');
+var htmlInfoStart = readHTML('./masterframe/infoStart.html');
+var htmlInfoStop = readHTML('./masterframe/infoStop.html');
+var htmlFooter = readHTML('./masterframe/footer.html');
+var htmlBottom = readHTML('./masterframe/bottom.html');
+var htmlPersonnelStart = readHTML('./masterframe/personnelregistrystart.html')
+var htmlPersonnelStop = readHTML('./masterframe/personnelregistrystop.html')
 
 
 // --------------------- Lista all personal -------------------------------
 router.get('/', function (request, response) {
+
 
     response.writeHead(200, { 'Content-Type': 'text/html' });
     response.write(htmlHead);

@@ -9,15 +9,15 @@ const xml2js = require('xml2js');
 
 // Läs in layouten
 router.use(express.static('./public'));
-var htmlHead = readHTML('./head.html');
-var htmlHeader = readHTML('./header.html');
-var htmlMenu = readHTML('./menu_back.html');
-var htmlInfoStart = readHTML('./infoStart.html');
-var htmlInfoStop = readHTML('./infoStop.html');
-var htmlFooter = readHTML('./footer.html');
-var htmlBottom = readHTML('./bottom.html');
-var htmlPersonnelStart = readHTML('./personnelregistrystart.html')
-var htmlPersonnelStop = readHTML('./personnelregistrystop.html')
+var htmlHead = readHTML('./masterframe/head.html');
+var htmlHeader = readHTML('./masterframe/header.html');
+var htmlMenu = readHTML('./masterframe/menu_back.html');
+var htmlInfoStart = readHTML('./masterframe/infoStart.html');
+var htmlInfoStop = readHTML('./masterframe/infoStop.html');
+var htmlFooter = readHTML('./masterframe/footer.html');
+var htmlBottom = readHTML('./masterframe/bottom.html');
+var htmlPersonnelStart = readHTML('./masterframe/personnelregistrystart.html')
+var htmlPersonnelStop = readHTML('./masterframe/personnelregistrystop.html')
 
 
 // Test-array med personal
