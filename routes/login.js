@@ -57,6 +57,11 @@ router.post('/', (req, res) => {
             const query = db.prepare("UPDATE employees SET lastLogin = ? WHERE employeeCode = ?")
 
             query.run(str_lastlogin, femployeecode)
+            // Set cookies
+            res.cookie("employeecode", row.employeeCode);
+            res.cookie("name", row.name);
+            res.cookie("lastlogin", str_lastlogin);
+            res.cookie("logintimes", str_lastlogin);
             req.session.userId = row.employeeCode;
             // SPARA och sen REDIRECT (Detta skickar headers)
             return req.session.save((err) => {

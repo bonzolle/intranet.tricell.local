@@ -6,6 +6,10 @@ router.use(express.json());
 //var path = require('path');
 const path = require("path");
 
+
+const pug = require('pug');
+const { response } = require('express');
+const pug_loggedinmenu = pug.compileFile('./masterframe/loggedinmenu.html');
 // Läs in layouten
 router.use(express.static('./public'));
 
@@ -23,6 +27,21 @@ router.get('/', function (request, response) {
     var htmlMenu = readHTML('./masterframe/menu.html');
 
     response.write(htmlHead);
+    if (request.session && request.session.userId) {
+        htmlLoggedinMenuCSS = readHTML('./masterframe/loggedinmenu_css.html');
+        response.write(htmlLoggedinMenuCSS);
+        htmlLoggedinMenuJS = readHTML('./masterframe/loggedinmenu_js.html');
+        response.write(htmlLoggedinMenuJS);
+        htmlLoggedinMenu = readHTML('./masterframe/loggedinmenu.html');
+        // response.write(htmlLoggedinMenu);
+        response.write(pug_loggedinmenu({
+            employeecode: request.cookies.employeecode,
+            name: request.cookies.name,
+            logintimes: request.cookies.logintimes,
+            lastlogin: request.cookies.lastlogin,
+        }));
+
+    }
     response.write(htmlHeader);
     response.write(htmlMenu);
     response.write(htmlInfoStart);

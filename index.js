@@ -8,6 +8,8 @@ const SessionStore = require('better-sqlite3-session-store')(session);
 const Database = require('better-sqlite3');
 const checkAuth = require('./authMiddleware.js'); // Se till att sökvägen stämmer
 const db = new Database('./users.db'); // Din befintliga DB
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 app.use(session({
     store: new SessionStore({
@@ -32,7 +34,10 @@ const personnelregistry = require('./routes/personnelregistry');
 const login = require('./routes/login');
 const virusdatabase = require('./routes/virusdatabase');
 const admin = require('./routes/admin');
-
+const deletevirus = require('./routes/deletevirus');
+const editvirus = require('./routes/editvirus');
+const newemployee = require('./routes/newemployee')
+const deleteemployee = require('./routes/deleteemployee');
 
 app.use(express.static('./public'));
 
@@ -60,6 +65,10 @@ app.use('/api/virusdatabase', virusdatabase);
 // Allt under denna rad kräver nu inloggning!
 app.use(checkAuth);
 app.use('/api/admin', admin);
+app.use('/api/virusdatabase/deletvirus', deletevirus);
+app.use('/api/virusdatabase/editvirus', editvirus);
+app.use('/api/newemployee', newemployee);
+app.use('/api/deleteemployee', deleteemployee);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
