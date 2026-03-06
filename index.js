@@ -38,6 +38,7 @@ const deletevirus = require('./routes/deletevirus');
 const editvirus = require('./routes/editvirus');
 const newemployee = require('./routes/newemployee')
 const deleteemployee = require('./routes/deleteemployee');
+const editemployee = require('./routes/editemployee')
 
 app.use(express.static('./public'));
 
@@ -69,7 +70,7 @@ app.use('/api/virusdatabase/deletvirus', deletevirus);
 app.use('/api/virusdatabase/editvirus', editvirus);
 app.use('/api/newemployee', newemployee);
 app.use('/api/deleteemployee', deleteemployee);
-
+app.use('/api/editemployee', editemployee);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
