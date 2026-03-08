@@ -4,8 +4,10 @@ const readHTML = require('../readHTML.js');
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'data', 'database', 'users.db');
+const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
 const db = new Database(dbPath);
+
+
 
 
 router.use(express.static('./public'));
@@ -30,22 +32,25 @@ router.post('/', (req, res) => {
 
         var htmloutput = ""
         // 1. Förbered frågan
-        const stmt = db.prepare("SELECT * FROM employees WHERE employeeCode = ?");
+        const credentialsStmt = db.prepare("SELECT * FROM user_credentials WHERE employeeCode = ?");
+
+        const personnelStmt = db.prepare("SELECT * FROM employees WHERE employeeCode = ?");
 
         // 2. Kör frågan (get hämtar första matchande raden)
-        const row = stmt.get(femployeecode);
+        const row = credentialsStmt.get(femployeecode);
+        const infoRow = personnelStmt.get(femployeecode)
         const newAttempts = row.loginTimes + 1;
-        console.log(row)
+
         if (!row) {
             htmloutput += `<div class="loginresponse"> Användaren hittades inte </div>`;
             return renderLoginResponse(res, `<div class="loginresponse">${htmloutput}</div>`);
         } else if (fpassword === row.password && row.lockout === 0) {
 
             // ökar antalet inlogningsantal
-            db.prepare("UPDATE employees SET loginTimes = ? WHERE employeeCode = ?")
+            db.prepare("UPDATE user_credentials SET loginTimes = ? WHERE employeeCode = ?")
                 .run(newAttempts, femployeecode);
             // nollställer antalet felaktig inloggningar eftersom inloggningen lyckades
-            db.prepare("UPDATE employees SET failedLoginTimes = 0 WHERE employeeCode = ?").run(femployeecode);
+            db.prepare("UPDATE user_credentials SET failedLoginTimes = 0 WHERE employeeCode = ?").run(femployeecode);
 
             let date = Date.now();
             let dateObj = new Date(date);
@@ -54,14 +59,14 @@ router.post('/', (req, res) => {
             let year = dateObj.getFullYear();
             let str_lastlogin = day + "." + month + "." + year
 
-            const query = db.prepare("UPDATE employees SET lastLogin = ? WHERE employeeCode = ?")
+            const query = db.prepare("UPDATE user_credentials SET lastLogin = ? WHERE employeeCode = ?")
 
             query.run(str_lastlogin, femployeecode)
             // Set cookies
             res.cookie("employeecode", row.employeeCode);
-            res.cookie("name", row.name);
+            res.cookie("name", infoRow.name);
             res.cookie("lastlogin", str_lastlogin);
-            res.cookie("logintimes", str_lastlogin);
+            res.cookie("logintimes", row.loginTimes);
             req.session.userId = row.employeeCode;
             // SPARA och sen REDIRECT (Detta skickar headers)
             return req.session.save((err) => {
@@ -79,13 +84,13 @@ router.post('/', (req, res) => {
             const maxAttempts = 3;
 
             if (newFailedAttempts >= maxAttempts) { // Lås kontot om man försökt för många gånger
-                db.prepare("UPDATE employees SET failedLoginTimes = ?, lockout = 1 WHERE employeeCode = ?")
+                db.prepare("UPDATE user_credentials SET failedLoginTimes = ?, lockout = 1 WHERE employeeCode = ?")
                     .run(newFailedAttempts, femployeecode);
                 htmloutput += `<div class="loginresponse" style="color:red;">För många misslyckade försök. Kontot har låsts.</div>`;
                 return renderLoginResponse(res, `<div class="loginresponse">${htmloutput}</div>`);
             } else {
                 // Uppdatera bara antal försök
-                db.prepare("UPDATE employees SET failedLoginTimes = ? WHERE employeeCode = ?")
+                db.prepare("UPDATE user_credentials SET failedLoginTimes = ? WHERE employeeCode = ?")
                     .run(newFailedAttempts, femployeecode);
                 htmloutput += `<div class="loginresponse">Fel lösenord. Försök kvar: ${maxAttempts - newAttempts}</div>`;
 
@@ -99,7 +104,6 @@ router.post('/', (req, res) => {
         console.error(err);
         res.status(500).send("Ett internt fel uppstod");
     }
-    console.log("Kollar session:", req.session); // Se vad som finns i minnet
     function renderLoginResponse(res, message) {
         res.write(htmlHead);
         res.write(htmlHeader);

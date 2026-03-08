@@ -2,7 +2,7 @@ var fs = require('fs');
 
 function readHTML(htmlfile) {
   try {
-    const htmltext = fs.readFileSync(htmlfile, 'utf-8')
+    var htmltext = fs.readFileSync(htmlfile, 'utf-8')
     {
       return htmltext;
     }

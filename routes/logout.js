@@ -1,15 +1,14 @@
 const express = require('express');
-const router = express.Router();
 const readHTML = require('../readHTML.js');
-const Database = require('better-sqlite3');
-const path = require('path');
-const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
-const db = new Database(dbPath);
+const router = express.Router();
+const fs = require('fs')
+router.use(express.json());
+//var path = require('path');
+const path = require("path");
 const checkAuth = require('../authMiddleware.js'); // Se till att sökvägen stämmer
 
-
+// Läs in layouten
 router.use(express.static('./public'));
-
 
 var htmlHead = readHTML('./masterframe/head.html');
 var htmlHeader = readHTML('./masterframe/header.html');
@@ -19,22 +18,19 @@ var htmlInfoStop = readHTML('./masterframe/infoStop.html');
 var htmlFooter = readHTML('./masterframe/footer.html');
 var htmlBottom = readHTML('./masterframe/bottom.html');
 
-router.get('/', checkAuth, (request, response) => {
-    response.write(htmlHead);
-    if (request.session && request.session.userId) {
-        htmlLoggedinMenuCSS = readHTML('./masterframe/loggedinmenu_css.html');
-        response.write(htmlLoggedinMenuCSS);
-        htmlLoggedinMenuJS = readHTML('./masterframe/loggedinmenu_js.html');
-        response.write(htmlLoggedinMenuJS);
-        htmlLoggedinMenu = readHTML('./masterframe/loggedinmenu.html');
-        response.write(htmlLoggedinMenu);
 
-    }
+// --------------------- Default-sida -------------------------------
+router.get('/', checkAuth, function (request, response) {
+    request.session.destroy();
+
+    var htmlMenu = readHTML('./masterframe/menu.html');
+
+    response.write(htmlHead);
     response.write(htmlHeader);
     response.write(htmlMenu);
     response.write(htmlInfoStart);
 
-    response.write('Logged in')
+    response.write('You have logged out!')
 
 
     response.write(htmlInfoStop);
@@ -42,4 +38,5 @@ router.get('/', checkAuth, (request, response) => {
     response.write(htmlBottom);
     response.end();
 });
+
 module.exports = router;

@@ -8,9 +8,6 @@ const Database = require('better-sqlite3');
 const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
 const db = new Database(dbPath);
 
-const pug = require('pug');
-const { response } = require('express');
-const pug_loggedinmenu = pug.compileFile('./masterframe/loggedinmenu.html');
 const checkAuth = require('../authMiddleware.js'); // Se till att sökvägen stämmer
 // --------------------- Läs in Masterframen --------------------------------
 const readHTML = require('../readHTML.js');
@@ -39,15 +36,19 @@ router.get('/:employeecode', checkAuth, function (request, response) {
 
     response.setHeader('Content-type', 'text/html');
     response.write(htmlHead);
+    if (request.session && request.session.userId) {
+        htmlLoggedinMenuCSS = readHTML('./masterframe/loggedinmenu_css.html');
+        response.write(htmlLoggedinMenuCSS);
+        htmlLoggedinMenuJS = readHTML('./masterframe/loggedinmenu_js.html');
+        response.write(htmlLoggedinMenuJS);
+        htmlLoggedinMenu = readHTML('./masterframe/loggedinmenu.html');
+        response.write(htmlLoggedinMenu);
+
+    }
     response.write(htmlLoggedinMenuCSS);
     response.write(htmlLoggedinMenuJS);
-    //response.write(htmlLoggedinMenu);
-    response.write(pug_loggedinmenu({
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
-    }));
+    response.write(htmlLoggedinMenu);
+
 
     response.write(htmlHeader);
     response.write(htmlMenu);

@@ -26,26 +26,32 @@ var htmlPersonnelStop = readHTML('./masterframe/personnelregistrystop.html')
 
 // --------------------- Lista all personal -------------------------------
 router.get('/', function (request, response) {
-
-
-    response.writeHead(200, { 'Content-Type': 'text/html' });
-    response.write(htmlHead);
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
-
-    // skapa tabell struktur för de inhämtade värdena
-
-    response.write(htmlPersonnelStart);
-
     // läs in och extrahera värdena ur XML filen
     try {
         // Hämta all personal från tabellen "employees"
         const employees = db.prepare('SELECT * FROM employees').all();
 
-        let tableRowsHtml = "";
+        var tableRowsHtml = "";
+        if (request.session && request.session.userId) {
+            tableRowsHtml += `<div> <a href="http://localhost:3000/api/newemployee">Add new</a></div>`
+        }
+
         employees.forEach(emp => {
-            tableRowsHtml += `
+            //låter användaren manipulera tabellen genom att lägga till, redigera eller ta bort personal
+            if (request.session && request.session.userId) {
+                tableRowsHtml += `
+    <div class="row">
+        <div class="table_cell_values">${emp.employeeCode}</div>
+        <div class="table_cell_values_name"><a href="http://localhost:3000/api/personnelregistry/${emp.employeeCode}">${emp.name} </a></div>
+        <div class="table_cell_values">${emp.signatureDate}</div>
+        <div class="table_cell_values">${emp.rank}</div>
+        <div class="table_cell_values">${emp.securityAccessLevel}</div>
+        <div class="delete_button"><a href="http://localhost:3000/api/deleteemployee/${emp.employeeCode}"> Delete </a></div>
+        <div class="edit_button"><a href="http://localhost:3000/api/editemployee/${emp.employeeCode}"> edit </a></div>
+    </div>`;
+            }
+            else {
+                tableRowsHtml += `
     <div class="row">
         <div class="table_cell_values">${emp.employeeCode}</div>
         <div class="table_cell_values_name"><a href="http://localhost:3000/api/personnelregistry/${emp.employeeCode}">${emp.name} </a></div>
@@ -53,21 +59,30 @@ router.get('/', function (request, response) {
         <div class="table_cell_values">${emp.rank}</div>
         <div class="table_cell_values">${emp.securityAccessLevel}</div>
     </div>`;
-
+            }
         });
-        response.write(tableRowsHtml)
     } catch (error) {
         console.error("Databasfel:", error);
         response.write("<p>Kunde inte hämta personaldata från databasen.</p>");
     }
 
-    response.write(htmlPersonnelStop);
-    response.write(htmlInfoStop);
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end();
 
-    //response.send(personnel);
+    const currentUserId = request.session.userId || null;
+    const fullContent =
+        readHTML('./masterframe/personnelregistrystart.html') +
+        tableRowsHtml +
+        readHTML('./masterframe/personnelregistrystop.html');
+
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('user', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        employeecode: request.cookies.employeecode,
+        name: request.cookies.name,
+        logintimes: request.cookies.logintimes,
+        lastlogin: request.cookies.lastlogin,
+        menu: readHTML('./masterframe/menu_back.html'),
+        content: fullContent
+    })
 });
 
 // --------------------- Hämta en specifik person -------------------------------
@@ -77,20 +92,12 @@ router.get('/:employeeId', function (request, response) {
     // FE står för 'Found Employee'
     const FE = db.prepare('SELECT * FROM employees WHERE employeeCode = ?').get(targetId);
     // Lägg till en logg precis innan find för att se vad du letar efter
-    console.log("Letar efter ID:", targetId);
-
-
     if (!FE) {
         console.log("HITTADE INGEN MATCH!");
         return response.status(404).send('Employee not found!');
     }
 
-    // NU skickar vi headern, när vi vet att allt gick bra
-    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    response.write(htmlHead);
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
+
 
     let htmloutput = `
            <link rel="stylesheet" type="text/css" href="css/personell.css">
@@ -235,13 +242,22 @@ router.get('/:employeeId', function (request, response) {
                 <!-- ========================= Weaknesses slut ========================= -->
 `
 
-    response.write(htmloutput);
-    response.write(htmlInfoStop);
-    response.write(htmloutput2);
+    const currentUserId = request.session.userId || null;
+    const fullContent =
+        htmloutput +
+        htmlInfoStop +
+        htmloutput2;
 
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end(); // Avsluta alltid anropet inuti callbacken
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('user', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        employeecode: request.cookies.employeecode,
+        name: request.cookies.name,
+        logintimes: request.cookies.logintimes,
+        lastlogin: request.cookies.lastlogin,
+        menu: readHTML('./masterframe/menu_back.html'),
+        content: fullContent
+    })
 });
 
 // --------------------- Skapa en ny person -------------------------------

@@ -1,15 +1,23 @@
 const config = require('./config/globals.json');
 const express = require('express');
+const path = require('path')
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// view table
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+// sessioms hantering
 const session = require('express-session');
 const SessionStore = require('better-sqlite3-session-store')(session);
-const Database = require('better-sqlite3');
 const checkAuth = require('./authMiddleware.js'); // Se till att sökvägen stämmer
-const db = new Database('./users.db'); // Din befintliga DB
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+// Databas
+const Database = require('better-sqlite3');
+const db = new Database('./data/database/tricell_intranet.db'); // Din befintliga DB
+
 
 app.use(session({
     store: new SessionStore({
@@ -39,6 +47,7 @@ const editvirus = require('./routes/editvirus');
 const newemployee = require('./routes/newemployee')
 const deleteemployee = require('./routes/deleteemployee');
 const editemployee = require('./routes/editemployee')
+const logout = require('./routes/logout')
 
 app.use(express.static('./public'));
 
@@ -53,9 +62,19 @@ var htmlFooter = readHTML('./masterframe/footer.html');
 var htmlBottom = readHTML('./masterframe/bottom.html');
 
 app.get('/', function (request, response) {
+    const currentUserId = request.session.userId || null;
 
-    response.send(htmlHead + htmlHeader + htmlMenu + htmlInfoStart + htmlIndex + htmlInfoStop + htmlFooter + htmlBottom);
-    response.end();
+
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('user', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        employeecode: request.cookies.employeecode,
+        name: request.cookies.name,
+        logintimes: request.cookies.logintimes,
+        lastlogin: request.cookies.lastlogin,
+        menu: readHTML('./masterframe/menu.html'),
+        content: readHTML('./public/texts/index.html')
+    })
 });
 
 app.use('/api/info', info);
@@ -71,6 +90,9 @@ app.use('/api/virusdatabase/editvirus', editvirus);
 app.use('/api/newemployee', newemployee);
 app.use('/api/deleteemployee', deleteemployee);
 app.use('/api/editemployee', editemployee);
+app.use('/api/logout', logout);
+
+// bestämmer port
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

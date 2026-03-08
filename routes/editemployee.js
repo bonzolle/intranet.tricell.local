@@ -13,13 +13,6 @@ const Database = require('better-sqlite3');
 const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
 const db = new Database(dbPath);
 
-const pug = require('pug');
-const { response } = require('express');
-const pug_loggedinmenu = pug.compileFile('./masterframe/loggedinmenu.html');
-const pug_editemployee = pug.compileFile('./masterframe/editemployee.html');
-
-
-
 // --------------------- Läs in Masterframen --------------------------------
 const readHTML = require('../readHTML.js');
 const fs = require('fs');
@@ -107,13 +100,7 @@ router.get('/:id', (request, response) => {
 
     response.write(htmlLoggedinMenuCSS);
     response.write(htmlLoggedinMenuJS);
-    //response.write(htmlLoggedinMenu);
-    response.write(pug_loggedinmenu({
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
-    }));
+    response.write(htmlLoggedinMenu);
 
     response.write(htmlHeader);
     response.write(htmlMenu);

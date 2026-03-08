@@ -6,58 +6,28 @@ router.use(express.json());
 //var path = require('path');
 const path = require("path");
 
-
-const pug = require('pug');
-const { response } = require('express');
-const pug_loggedinmenu = pug.compileFile('./masterframe/loggedinmenu.html');
-// Läs in layouten
 router.use(express.static('./public'));
-
-var htmlHead = readHTML('./masterframe/head.html');
-var htmlHeader = readHTML('./masterframe/header.html');
-// var htmlMenu = readHTML('./masterframe/menu.html');    
-var htmlInfoStart = readHTML('./masterframe/infoStart.html');
-var htmlInfoStop = readHTML('./masterframe/infoStop.html');
-var htmlFooter = readHTML('./masterframe/footer.html');
-var htmlBottom = readHTML('./masterframe/bottom.html');
-
 
 // --------------------- Default-sida -------------------------------
 router.get('/', function (request, response) {
-    var htmlMenu = readHTML('./masterframe/menu.html');
+    const currentUserId = request.session.userId || null;
 
-    response.write(htmlHead);
-    if (request.session && request.session.userId) {
-        htmlLoggedinMenuCSS = readHTML('./masterframe/loggedinmenu_css.html');
-        response.write(htmlLoggedinMenuCSS);
-        htmlLoggedinMenuJS = readHTML('./masterframe/loggedinmenu_js.html');
-        response.write(htmlLoggedinMenuJS);
-        htmlLoggedinMenu = readHTML('./masterframe/loggedinmenu.html');
-        // response.write(htmlLoggedinMenu);
-        response.write(pug_loggedinmenu({
-            employeecode: request.cookies.employeecode,
-            name: request.cookies.name,
-            logintimes: request.cookies.logintimes,
-            lastlogin: request.cookies.lastlogin,
-        }));
 
-    }
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
-
-    htmlInfo = readHTML('./public/texts/index.html');
-    response.write(htmlInfo);
-
-    response.write(htmlInfoStop);
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end();
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('user', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        employeecode: request.cookies.employeecode,
+        name: request.cookies.name,
+        logintimes: request.cookies.logintimes,
+        lastlogin: request.cookies.lastlogin,
+        menu: readHTML('./masterframe/menu.html'),
+        content: readHTML('./public/texts/index.html')
+    })
 });
-
 
 // --------------------- Läs en specifik info-sida -------------------------------
 router.get('/:infotext', function (request, response) {
+    const currentUserId = request.session.userId || null;
     const infotext = request.params.infotext;
     if (infotext == "") {
         infotext = 'index';
@@ -67,25 +37,27 @@ router.get('/:infotext', function (request, response) {
         var htmlMenu = readHTML('./masterframe/menu_back.html');
     }
 
-    response.write(htmlHead);
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
-
     // Läs in rätt info-text
     const filepath = path.resolve(__dirname, "../public/texts/" + infotext + '.html');
+
     if (fs.existsSync(filepath)) {
 
-        htmlInfo = readHTML('./public/texts/' + infotext + '.html');
+        htmlInfo = readHTML(filepath);
     }
     else {
         htmlInfo = readHTML('./public/texts/index.html');
     }
-    response.write(htmlInfo);
 
-    response.write(htmlInfoStop);
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end();
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('user', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        employeecode: request.cookies.employeecode,
+        name: request.cookies.name,
+        logintimes: request.cookies.logintimes,
+        lastlogin: request.cookies.lastlogin,
+        menu: htmlMenu,
+        content: htmlInfo
+    })
+
 });
 module.exports = router;

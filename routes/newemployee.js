@@ -15,9 +15,6 @@ const checkAuth = require('../authMiddleware.js'); // Se till att sökvägen st�
 
 router.use(express.static('./public'));
 
-// const pug = require('pug');
-// const { response } = require('express');
-//const pug_loggedinmenu = pug.compileFile('./masterframe/loggedinmenu.html');
 
 // --------------------- Läs in Masterframen --------------------------------
 const readHTML = require('../readHTML.js');
@@ -119,12 +116,6 @@ router.get('/', checkAuth, (request, response) => {
         response.write(htmlLoggedinMenuCSS);
         response.write(htmlLoggedinMenuJS);
         response.write(htmlLoggedinMenu);
-        /* response.write(pug_loggedinmenu({
-             employeecode: request.cookies.employeecode,
-             name: request.cookies.name,
-             logintimes: request.cookies.logintimes,
-             lastlogin: request.cookies.lastlogin,
-         })); */
     }
     response.write(htmlHeader);
     response.write(htmlMenu);
