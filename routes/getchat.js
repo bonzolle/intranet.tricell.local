@@ -1,36 +1,45 @@
 const express = require('express');
 const router = express.Router();
+router.use(express.json());
+const Database = require('better-sqlite3');
+const path = require('path');
+
+const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
+const db = new Database(dbPath);
 
 router.get('/', (request, response) => {
-    // Öppna databasen
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./data/mdb/personnelregistry.mdb;');
+    try {
+        // 1. Kontrollera att användaren är inloggad
+        if (!request.session.userId) {
+            return response.status(401).send("0");
+        }
 
-    async function sqlQuery() {
-        // Skicka SQL-query till databasen och läs in variabler
-        const result = await connection.query('SELECT * FROM chat');
+        const currentUserId = request.session.userId.toString();
 
-        // Loopa genom alla chat-meddelanden
-        var count = result.length;
-        let i;
-        var newmessages = 0;
-        for (i = 0; i < count; i++) {
-            str_id = result[i]['id'];
-            str_employeecode = result[i]['employeecode'];
-            str_message = result[i]['message'];
-            str_postdate = result[i]['postdate'];
-            str_postdate = result[i]['posttime'];
-            str_readby = "" + result[i]['readby'];
+        // 2. Hämta alla meddelanden. 
+        // .all() behövs för att result ska bli en array som går att loopa.
+        const rows = db.prepare('SELECT readBy FROM chat').all();
 
-            // Kolla vilka meddelanden som är nya (om användarens namn finns i readby-kolumnen)
-            if (str_readby.indexOf(request.session.username) == -1) {
-                newmessages++;
+        let newMessagesCount = 0;
+
+        // 3. Loopa igenom resultaten
+        for (const row of rows) {
+            // Se till att readBy inte är null (blir en tom sträng annars)
+            const readBy = row.readBy || "";
+
+            // Kolla om userId INTE finns i readBy-strängen
+            if (!readBy.includes(currentUserId)) {
+                newMessagesCount++;
             }
         }
-        // Skicka respons, antalet nya meddelanden
-        response.send(newmessages.toString());
+
+        // 4. Skicka tillbaka antalet som en sträng
+        response.send(newMessagesCount.toString());
+
+    } catch (err) {
+        console.error("Fel vid räkning av meddelanden:", err);
+        response.status(500).send("0");
     }
-    sqlQuery();
 });
 
 module.exports = router;

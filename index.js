@@ -48,6 +48,8 @@ const newemployee = require('./routes/newemployee')
 const deleteemployee = require('./routes/deleteemployee');
 const editemployee = require('./routes/editemployee')
 const logout = require('./routes/logout')
+const chat = require('./routes/chat')
+const getchat = require('./routes/getchat')
 
 app.use(express.static('./public'));
 
@@ -91,6 +93,8 @@ app.use('/api/newemployee', newemployee);
 app.use('/api/deleteemployee', deleteemployee);
 app.use('/api/editemployee', editemployee);
 app.use('/api/logout', logout);
+app.use('/api/chat', chat)
+app.use('/api/getchat', getchat)
 
 // bestämmer port
 const port = process.env.PORT || 3000;
