@@ -110,33 +110,36 @@ router.post('/', function (request, response) {
 
 // ---------------------- Formulär för att lägga till ny person ------------------------------
 router.get('/', checkAuth, (request, response) => {
-    response.setHeader('Content-type', 'text/html');
-    response.write(htmlHead);
-    if (request.session && request.session.userId) {
-        response.write(htmlLoggedinMenuCSS);
-        response.write(htmlLoggedinMenuJS);
-        response.write(htmlLoggedinMenu);
-    }
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
+    const currentUserId = request.session.userId || null;
 
-    // Läs in formuläret
-    if (request.session && request.session.userId) {
-        htmlNewEmployeeCSS = readHTML('./masterframe/newemployee_css.html');
-        response.write(htmlNewEmployeeCSS);
-        htmlNewEmployeeJS = readHTML('./masterframe/newemployee_js.html');
-        response.write(htmlNewEmployeeJS);
-        htmlNewEmployee = readHTML('./masterframe/newemployee.html');
-        response.write(htmlNewEmployee);
-    }
-    else {
-        response.write("Not logged in");
-    }
-    response.write(htmlInfoStop);
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end();
+    const genders = ['Male', 'Female', 'Other'];
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('editemployee', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
+        menu: readHTML('./masterframe/menu_back.html'),
+        employeecode: "",
+        name: "",
+        dateofbirth: "",
+        signaturedate: "",
+        sex: "",
+        bloodtype: "",
+        height: "",
+        weight: "",
+        rank: "",
+        securityaccesslevel: "",
+        department: "",
+        background: "",
+        strengths: "",
+        weaknesses: "",
+        securityaccesslevel: "",
+        allGenders: genders,
+        currentSex: ""
+    })
 });
+
 
 module.exports = router;

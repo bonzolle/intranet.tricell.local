@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-var formidable = require('formidable');
 
 router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({ extended: false }));
+router.use(bodyParser.urlencoded({ extended: true }));
 
 router.use(express.static('./public'));
 const path = require('path');
@@ -16,7 +15,7 @@ const db = new Database(dbPath);
 // --------------------- Läs in Masterframen --------------------------------
 const readHTML = require('../readHTML.js');
 const fs = require('fs');
-
+router.use(express.static('./public'));
 var htmlHead = readHTML('./masterframe/head.html');
 var htmlHeader = readHTML('./masterframe/header.html');
 var htmlMenu = readHTML('./masterframe/menu.html');
@@ -33,17 +32,19 @@ var htmlLoggedinMenu = readHTML('./masterframe/loggedinmenu.html');
 // ---------------------- Editera person ------------------------------------------------
 // --------------------- Uppdatera en person -------------------------------
 // Ändra router.put till router.post
-router.post('/update/:employeeId', function (request, response) {
+router.post('/:employeeId', function (request, response) {
     const targetId = request.params.employeeId;
-
-    // Om du använder ett vanligt formulär ligger datan i request.body
-    // Men vi måste se till att namnen matchar databasen.
     const b = request.body;
+
+    // Felsökning: Se vad som faktiskt skickas från formuläret i din terminal
+    console.log("Mottagen data för uppdatering:", b);
+
+    // Konvertera datum från HTML (YYYY-MM-DD) till DB-format (DD.MM.YYYY) om det behövs
 
     const updates = {
         employeeCode: b.femployeecode,
         name: b.fname,
-        dateOfBirth: b.fdateofbirth,
+        dateOfBirth: b.fdateofbirth, // Använder det konverterade datumet
         sex: b.fsex,
         bloodType: b.fbloodtype,
         height: b.fheight,
@@ -57,25 +58,34 @@ router.post('/update/:employeeId', function (request, response) {
     };
 
     try {
-        const keys = Object.keys(updates);
+        // Filtrera bort undefined-värden för att undvika att skriva över med null
+        const keys = Object.keys(updates).filter(key => updates[key] !== undefined);
         const setClause = keys.map(key => `${key} = ?`).join(', ');
-        const values = Object.values(updates);
+        const values = keys.map(key => updates[key]);
+
+        if (keys.length === 0) {
+            return response.status(400).send('Ingen data skickades');
+        }
 
         const sql = `UPDATE employees SET ${setClause} WHERE employeeCode = ?`;
+
+        // Kör queryn. Vi skickar med värdena + targetId för WHERE-klausulen
         db.prepare(sql).run(...values, targetId);
 
-        response.redirect('/api/editemployee/' + targetId); // Skicka användaren tillbaka till sidan
+        console.log(`Uppdatering lyckades för: ${targetId}`);
+        response.redirect('/api/editemployee/' + (b.femployeecode || targetId));
     } catch (error) {
-        console.error(error);
-        response.status(500).send('Kunde inte uppdatera');
+        console.error("SQL Fel:", error);
+        response.status(500).send('Kunde inte uppdatera databasen');
     }
 });
+
 
 
 // ---------------------- Formulär för att editera person ------------------------------
 router.get('/:id', (request, response) => {
     var id = request.params.id;
-
+    const currentUserId = request.session.userId || null;
 
     // Läs nuvarande värden ur databasen
     const row = db.prepare("SELECT * FROM employees WHERE employeeCode= ?").get(id);
@@ -94,19 +104,7 @@ router.get('/:id', (request, response) => {
     let str_background = row.background;
     let str_strengths = row.strengths;
     let str_weaknesses = row.weaknesses;
-
-    response.setHeader('Content-type', 'text/html');
-    response.write(htmlHead);
-
-    response.write(htmlLoggedinMenuCSS);
-    response.write(htmlLoggedinMenuJS);
-    response.write(htmlLoggedinMenu);
-
-    response.write(htmlHeader);
-    response.write(htmlMenu);
-    response.write(htmlInfoStart);
-
-
+    console.log(str_dateOfBirth)
     // Kollar om personen har ett foto
     const path = "./public/photos/" + str_employeeCode + ".jpg";
     if (fs.existsSync(path)) {
@@ -116,16 +114,15 @@ router.get('/:id', (request, response) => {
         photo = "images/default.jpg";
     }
 
-
-    htmlNewEmployeeCSS = readHTML('./masterframe/newemployee_css.html');
-    response.write(htmlNewEmployeeCSS);
-    htmlNewEmployeeJS = readHTML('./masterframe/newemployee_js.html');
-    response.write(htmlNewEmployeeJS);
-    //htmlNewEmployee = readHTML('./masterframe/editemployee.html');
-    //response.write(htmlNewEmployee);
-    response.write(pug_editemployee({
-        photo: photo,
-        id: str_employeeCode,
+    const genders = ['Male', 'Female', 'Other'];
+    // 3. Skicka detta objekt till din EJS-fil
+    response.render('editemployee', {
+        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
+        menu: readHTML('./masterframe/menu_back.html'),
         employeecode: str_employeeCode,
         name: str_name,
         dateofbirth: str_dateOfBirth,
@@ -137,24 +134,13 @@ router.get('/:id', (request, response) => {
         rank: str_rank,
         securityaccesslevel: str_securityAccessLevel,
         department: str_department,
-        background: str_background,
-        strengths: str_strengths,
-        weaknesses: str_weaknesses,
-        security_A: str_securityAccessLevel === 'A',
-        security_B: str_securityAccessLevel === 'B',
-        security_C: str_securityAccessLevel === 'C',
-        sex_Male: str_sex === 'Male',
-        sex_Female: str_sex === 'Female',
-        sex_Other: str_sex === 'Other'
-    }));
-
-    response.write(htmlInfoStop);
-    response.write(htmlFooter);
-    response.write(htmlBottom);
-    response.end();
-
-
-
+        background: str_background || "",
+        strengths: str_strengths || "",
+        weaknesses: str_weaknesses || "",
+        securityaccesslevel: str_securityAccessLevel,
+        allGenders: genders,
+        currentSex: str_sex
+    })
 });
 
 module.exports = router;
