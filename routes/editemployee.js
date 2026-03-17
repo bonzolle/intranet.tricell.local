@@ -12,6 +12,23 @@ const Database = require('better-sqlite3');
 const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.db');
 const db = new Database(dbPath);
 
+const multer = require('multer'); // 1. Importera multer
+
+// 2. Konfigurera hur bilden ska sparas
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/photos/'); // Mappen där du läser bilderna ifrån
+    },
+    filename: function (req, file, cb) {
+        // Vi tar employeeCode från URL-parametern (:employeeId)
+        // så att filen garanterat döps rätt
+        const employeeCode = req.body.femployeecode;
+        cb(null, employeeCode + ".jpg");
+    }
+});
+
+const upload = multer({ storage: storage });
+
 // --------------------- Läs in Masterframen --------------------------------
 const readHTML = require('../readHTML.js');
 const fs = require('fs');
@@ -32,14 +49,15 @@ var htmlLoggedinMenu = readHTML('./masterframe/loggedinmenu.html');
 // ---------------------- Editera person ------------------------------------------------
 // --------------------- Uppdatera en person -------------------------------
 // Ändra router.put till router.post
-router.post('/:employeeId', function (request, response) {
+router.post('/:employeeId', upload.single('ffile'), function (request, response) {
     const targetId = request.params.employeeId;
     const b = request.body;
 
-    // Felsökning: Se vad som faktiskt skickas från formuläret i din terminal
-    console.log("Mottagen data för uppdatering:", b);
+    if (request.file) {
+        console.log("Ny profilbild sparad som:", request.file.filename);
+    }
 
-    // Konvertera datum från HTML (YYYY-MM-DD) till DB-format (DD.MM.YYYY) om det behövs
+
 
     const updates = {
         employeeCode: b.femployeecode,

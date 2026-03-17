@@ -156,7 +156,8 @@
 
 											<form name="newemployeeform"
 												action="http://localhost:3000/api/editemployee/<%= employeecode %>"
-												onSubmit="return formCheckNewEmployee()" method="post">
+												onSubmit="return formCheckNewEmployee()" method="POST"
+												enctype="multipart/form-data">
 												<input type="hidden" name="fsignaturedate" value="" />
 
 												<table id="infomiddle">
@@ -164,22 +165,24 @@
 														<td width="166" valign="top">
 															<table id="photocol">
 																<tr>
-																	<td id="photobox">
-																		<img src="/photos/default.jpg"
-																			alt="Default Photo" width="164" /><br />
-																		<label class="file-upload"><input type="file"
-																				name="ffile" id="ffile" /></label>
+																	<td id="employeecode">
+																		EMPLOYEE CODE: <br />
+																		<input type="text" name="femployeecode"
+																			id="femployeecode" size="7" maxlength="7"
+																			value="<%= employeecode %>">
 																	</td>
 																</tr>
 																<tr>
 																	<td class="tablespacer"></td>
 																</tr>
 																<tr>
-																	<td id="employeecode">
-																		EMPLOYEE CODE: <br />
-																		<input type="text" name="femployeecode"
-																			id="femployeecode" size="7" maxlength="7"
-																			value="<%= employeecode %>">
+
+																	<td id="photobox">
+																		<img src="/<%= photo %>" alt="Employee"
+																			width="164" /><br />
+																		<label class="file-upload"><input type="file"
+																				name="ffile" id="ffile"
+																				accept="image/jpg" /></label>
 																	</td>
 																</tr>
 																<tr>
@@ -271,7 +274,8 @@
 																	<td class="valuecol"><input type="date"
 																			name="fdateofbirth" id="fdateofbirth"
 																			size="20" maxlength="11"
-																			value="<%= dateofbirth %>" /></td>
+																			value="<%= dateofbirth %>" />
+																	</td>
 																</tr>
 																<tr>
 																	<td class="blackline"></td>
@@ -285,7 +289,8 @@
 																			<% allGenders.forEach(sex=> { %>
 																				<option value="<%= sex %>"
 																					<%=currentSex===sex ? 'selected'
-																					: '' %>>
+																					: '' %>
+																					>
 																					<%= sex %>
 																				</option>
 																				<% }); %>
@@ -336,7 +341,8 @@
 																	<td class="valuecol"><input type="text"
 																			name="fdepartment" id="fdepartment"
 																			size="20" value="<%= department %>"
-																			maxlength="255" /></td>
+																			maxlength="255" />
+																	</td>
 																</tr>
 																<tr>
 																	<td class="blackline"></td>

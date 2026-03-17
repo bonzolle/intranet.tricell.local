@@ -32,8 +32,9 @@ router.get('/', function (request, response) {
         const employees = db.prepare('SELECT * FROM employees').all();
 
         var tableRowsHtml = "";
+        var newemployeebttn = "";
         if (request.session && request.session.userId) {
-            tableRowsHtml += `<div> <a href="http://localhost:3000/api/newemployee">Add new</a></div>`
+            newemployeebttn += `<div class="newemployeebttn"> <a href="http://localhost:3000/api/newemployee" class="special-link">Add new employee</a></div>`
         }
 
         employees.forEach(emp => {
@@ -46,8 +47,9 @@ router.get('/', function (request, response) {
         <div class="table_cell_values">${emp.signatureDate}</div>
         <div class="table_cell_values">${emp.rank}</div>
         <div class="table_cell_values">${emp.securityAccessLevel}</div>
-        <div class="delete_button"><a href="http://localhost:3000/api/deleteemployee/${emp.employeeCode}"> Delete </a></div>
-        <div class="edit_button"><a href="http://localhost:3000/api/editemployee/${emp.employeeCode}"> edit </a></div>
+        <div class="edit_button"><a href="http://localhost:3000/api/editemployee/${emp.employeeCode}"> E </a></div>
+        <div class="delete_button"><a href="http://localhost:3000/api/deleteemployee/${emp.employeeCode}"> D </a></div>
+        
     </div>`;
             }
             else {
@@ -69,6 +71,7 @@ router.get('/', function (request, response) {
 
     const currentUserId = request.session.userId || null;
     const fullContent =
+        newemployeebttn +
         readHTML('./masterframe/personnelregistrystart.html') +
         tableRowsHtml +
         readHTML('./masterframe/personnelregistrystop.html');
@@ -76,10 +79,10 @@ router.get('/', function (request, response) {
     // 3. Skicka detta objekt till din EJS-fil
     response.render('user', {
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
         menu: readHTML('./masterframe/menu_back.html'),
         content: fullContent
     })
@@ -251,10 +254,10 @@ router.get('/:employeeId', function (request, response) {
     // 3. Skicka detta objekt till din EJS-fil
     response.render('user', {
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
         menu: readHTML('./masterframe/menu_back.html'),
         content: fullContent
     })

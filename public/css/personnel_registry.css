@@ -54,3 +54,40 @@
 	color: #ffffff;
 	background-color: #cccccc;
 }
+
+.edit_button {
+	display: table-cell;
+	border: 1px solid black;
+	height: 20px;
+	vertical-align: middle;
+	border-collapse: collapse;
+	padding: 5px;
+	font-size: 16px;
+	text-align: center;
+	color: #ffffff;
+	background-color: #cccccc;
+}
+
+.delete_button {
+	display: table-cell;
+	border: 1px solid black;
+	height: 20px;
+	vertical-align: middle;
+	border-collapse: collapse;
+	padding: 5px;
+	font-size: 16px;
+	text-align: center;
+	color: #ffffff;
+	background-color: #cccccc;
+
+}
+
+.newemployeebttn {
+	font-size: 30px;
+	text-align: right;
+
+}
+
+a.special-link {
+	color: blue;
+}
