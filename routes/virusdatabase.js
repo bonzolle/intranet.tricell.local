@@ -6,6 +6,8 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
+const backupVirus = require('../backup.js');
+
 const dbPath = path.join(__dirname, '..', 'data', 'database', 'data.db');
 const db = new Database(dbPath);
 
@@ -108,7 +110,6 @@ router.get('/:virusId', function (request, response) {
     attachmentsHTML = `<div class="source_row">Inga filer</div>`;
   }
   const virus = db.prepare('SELECT * FROM ResearchObjects WHERE id = ?').get(targetId)
-  console.log(targetId)
   if (!virus) {
     console.log("HITTADE INGEN MATCH!");
     return response.status(404).send('virus not found!');
@@ -180,6 +181,14 @@ router.get('/:virusId', function (request, response) {
 <div id="sources_container">
   ${attachmentsHTML}
 </div>
+            <div style="display:flex; align-items: center; justify-content: space-between; width: 650px;">
+                <a href="http://localhost:3000/api/virusdatabase/backup/${virus.ID}" style="color:#336699;text-decoration:none;"> 
+                <button style="margin-top:10px; padding:6px 14px; background:#4682B4;
+                 color:#000; border:1px solid #000; border-radius:0; font-size:12px; font-weight:bold; cursor:pointer;">
+                    Backup virus
+                </button></a>
+            </div>
+
 </div>
 `;
 
@@ -324,7 +333,51 @@ router.post('/:virusId/delete-file', (req, res) => {
 });
 
 
+router.get('/backup/:virusId', async function (request, response) {
+  const currentUserId = request.session.userId || null;
+  const virusId = request.params.virusId;
+  let htmlOutput = ""
 
+  const virus = db.prepare('SELECT * FROM ResearchObjects WHERE id = ?').get(virusId)
+  if (!virus) {
+    console.log("HITTADE INGEN MATCH!");
+    return response.status(404).send('virus not found!');
+  }
+  async function backed() {
+
+
+    if (request.session && request.session.userId) {
+      htmlOutput += `
+            <div style="display:flex; align-items: center; justify-content: space-between; width: 650px;">
+            <a href="http://localhost:3000/api/editvirus/${virusId}" style="color:#336699;text-decoration:none;"> 
+                <button style="margin-top:10px; padding:6px 14px; background:#4682B4;
+                 color:#000;
+                               border:1px solid #000; border-radius:0;
+                               font-size:12px; font-weight:bold; cursor:pointer;">
+                    Edit info
+                </button></a>
+                <button style="margin-top:10px; padding:6px 14px; background:#4682B4;
+                 color:#000; border:1px solid #000; border-radius:0; font-size:12px; font-weight:bold; cursor:pointer;">`
+      if (await backupVirus(virus)) {
+        htmlOutput += `Virus is now backed up`;
+      } else {
+        htmlOutput += `Error backing up virus`;
+      }
+      htmlOutput += `</button></div>`
+    };
+  }
+  await backed();
+  response.render('user', {
+    userId: currentUserId,
+    cookieemployeecode: request.cookies.employeecode,
+    cookiename: request.cookies.name,
+    cookielogintimes: request.cookies.logintimes,
+    cookielastlogin: request.cookies.lastlogin,
+    menu: readHTML('./masterframe/menu_back.html'),
+    content: htmlOutput
+  })
+
+});
 
 
 module.exports = router;

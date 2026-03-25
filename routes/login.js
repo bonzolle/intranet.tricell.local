@@ -67,7 +67,11 @@ router.post('/', (req, res) => {
             res.cookie("name", infoRow.name);
             res.cookie("lastlogin", str_lastlogin);
             res.cookie("logintimes", row.loginTimes);
+
+            // Starta sessioner
             req.session.userId = row.employeeCode;
+            req.session.securityAccessLevel = row.securityAccessLevel;
+
             // SPARA och sen REDIRECT (Detta skickar headers)
             return req.session.save((err) => {
                 if (err) return res.status(500).send("Sessionsfel");
