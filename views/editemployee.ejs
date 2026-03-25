@@ -154,8 +154,7 @@
 										<%- include('../masterframe/infoStart.html')%>
 											<h1>Edit Employee</h1>
 
-											<form name="newemployeeform"
-												action="http://localhost:3000/api/editemployee/<%= employeecode %>"
+											<form name="newemployeeform" action="/api/editemployee/<%= employeecode %>"
 												onSubmit="return formCheckNewEmployee()" method="POST"
 												enctype="multipart/form-data">
 												<input type="hidden" name="fsignaturedate" value="" />

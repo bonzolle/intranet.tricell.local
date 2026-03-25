@@ -50,6 +50,8 @@ const editemployee = require('./routes/editemployee')
 const logout = require('./routes/logout')
 const chat = require('./routes/chat')
 const getchat = require('./routes/getchat')
+const newvirus = require('./routes/newvirus')
+const newdata = require('./routes/fileuploadvirus')
 
 app.use(express.static('./public'));
 
@@ -70,10 +72,10 @@ app.get('/', function (request, response) {
     // 3. Skicka detta objekt till din EJS-fil
     response.render('user', {
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
         menu: readHTML('./masterframe/menu.html'),
         content: readHTML('./public/texts/index.html')
     })
@@ -87,14 +89,16 @@ app.use('/api/virusdatabase', virusdatabase);
 // Allt under denna rad kräver nu inloggning!
 app.use(checkAuth);
 app.use('/api/admin', admin);
-app.use('/api/virusdatabase/deletvirus', deletevirus);
-app.use('/api/virusdatabase/editvirus', editvirus);
+app.use('/api/deletevirus', deletevirus);
+app.use('/api/editvirus', editvirus);
+app.use('/api/newvirus', newvirus);
 app.use('/api/newemployee', newemployee);
 app.use('/api/deleteemployee', deleteemployee);
 app.use('/api/editemployee', editemployee);
 app.use('/api/logout', logout);
 app.use('/api/chat', chat)
 app.use('/api/getchat', getchat)
+app.use('/api/data', newdata)
 
 // bestämmer port
 const port = process.env.PORT || 3000;

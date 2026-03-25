@@ -76,7 +76,7 @@ router.get('/:employeecode', checkAuth, function (request, response) {
         }
 
         // Ge respons till användaren
-        response.write("Employee deleted<br/><p /><a href=\"http://localhost:3000/api/personnelregistry\" style=\"color:#336699;text-decoration:none;\">Delete another employee</a>");
+        response.write("Employee deleted<br/><p /><a href=\"/api/personnelregistry\" style=\"color:#336699;text-decoration:none;\">Delete another employee</a>");
     } catch (error) {
         console.error(error);
         response.status(500).send('Kunde inte uppdatera');

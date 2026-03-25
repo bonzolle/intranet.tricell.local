@@ -16,7 +16,7 @@ router.use(express.static('./public'));
 const readHTML = require('../readHTML.js');
 const fs = require('fs');
 const { request } = require('http');
-router.use(express.static('./public'));
+;
 
 var htmlHead = readHTML('./masterframe/head.html');
 var htmlHeader = readHTML('./masterframe/header.html');
@@ -103,7 +103,7 @@ router.post('/', upload.single('ffile'), function (request, response) {
 
         response.write("<h2>Personal registrerad</h2>");
         response.write("<p>Den anställde <strong>" + name + "</strong> har lagts till i Tricells register.</p>");
-        response.write("<br/><p /><a href=\"http://localhost:3000/api/newemployee\" style=\"color:#336699;text-decoration:none;\">Lägg till en till anställd</a>");
+        response.write("<br/><p /><a href=\"/api/newemployee\" style=\"color:#336699;text-decoration:none;\">Lägg till en till anställd</a>");
 
     } catch (err) {
         console.error("Databasfel:", err);

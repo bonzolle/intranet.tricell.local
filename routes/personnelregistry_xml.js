@@ -67,7 +67,7 @@ router.get('/', function (request, response) {
         tableRowsHtml += `
     <div class="row">
         <div class="table_cell_values">${str_employeeCode}</div>
-        <div class="table_cell_values_name"><a href="http://localhost:3000/api/personnelregistry/${str_employeeCode}">${str_name} </a></div>
+        <div class="table_cell_values_name"><a href="/api/personnelregistry/${str_employeeCode}">${str_name} </a></div>
         <div class="table_cell_values">${str_signatureDate}</div>
         <div class="table_cell_values">${str_rank}</div>
         <div class="table_cell_values">${str_securityAccessLevel}</div>

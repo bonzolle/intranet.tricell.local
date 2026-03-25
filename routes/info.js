@@ -51,10 +51,10 @@ router.get('/:infotext', function (request, response) {
     // 3. Skicka detta objekt till din EJS-fil
     response.render('user', {
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
         menu: htmlMenu,
         content: htmlInfo
     })

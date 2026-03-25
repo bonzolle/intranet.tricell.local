@@ -34,7 +34,7 @@ router.get('/', function (request, response) {
         var tableRowsHtml = "";
         var newemployeebttn = "";
         if (request.session && request.session.userId) {
-            newemployeebttn += `<div class="newemployeebttn"> <a href="http://localhost:3000/api/newemployee" class="special-link">Add new employee</a></div>`
+            newemployeebttn += `<div class="newemployeebttn"> <a href="/api/newemployee" class="special-link">Add new employee</a></div>`
         }
 
         employees.forEach(emp => {
@@ -43,12 +43,12 @@ router.get('/', function (request, response) {
                 tableRowsHtml += `
     <div class="row">
         <div class="table_cell_values">${emp.employeeCode}</div>
-        <div class="table_cell_values_name"><a href="http://localhost:3000/api/personnelregistry/${emp.employeeCode}">${emp.name} </a></div>
+        <div class="table_cell_values_name"><a href="/api/personnelregistry/${emp.employeeCode}">${emp.name} </a></div>
         <div class="table_cell_values">${emp.signatureDate}</div>
         <div class="table_cell_values">${emp.rank}</div>
         <div class="table_cell_values">${emp.securityAccessLevel}</div>
-        <div class="edit_button"><a href="http://localhost:3000/api/editemployee/${emp.employeeCode}"> E </a></div>
-        <div class="delete_button"><a href="http://localhost:3000/api/deleteemployee/${emp.employeeCode}"> D </a></div>
+        <div class="edit_button"><a href="/api/editemployee/${emp.employeeCode}"> E </a></div>
+        <div class="delete_button"><a href="/api/deleteemployee/${emp.employeeCode}"> D </a></div>
         
     </div>`;
             }
@@ -56,7 +56,7 @@ router.get('/', function (request, response) {
                 tableRowsHtml += `
     <div class="row">
         <div class="table_cell_values">${emp.employeeCode}</div>
-        <div class="table_cell_values_name"><a href="http://localhost:3000/api/personnelregistry/${emp.employeeCode}">${emp.name} </a></div>
+        <div class="table_cell_values_name"><a href="/api/personnelregistry/${emp.employeeCode}">${emp.name} </a></div>
         <div class="table_cell_values">${emp.signatureDate}</div>
         <div class="table_cell_values">${emp.rank}</div>
         <div class="table_cell_values">${emp.securityAccessLevel}</div>
