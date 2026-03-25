@@ -76,14 +76,15 @@ router.get('/', function (request, response) {
         tableRowsHtml +
         readHTML('./masterframe/personnelregistrystop.html');
 
-    // 3. Skicka detta objekt till din EJS-fil
+    const secAccessLevel = request.session.securityAccessLevel || null;
     response.render('user', {
+        securityAccessLevel: secAccessLevel,
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
         cookieemployeecode: request.cookies.employeecode,
         cookiename: request.cookies.name,
         cookielogintimes: request.cookies.logintimes,
         cookielastlogin: request.cookies.lastlogin,
-        menu: readHTML('./masterframe/menu_back.html'),
+        menu: readHTML('./masterframe/menu.html'),
         content: fullContent
     })
 });
@@ -251,14 +252,15 @@ router.get('/:employeeId', function (request, response) {
         htmlInfoStop +
         htmloutput2;
 
-    // 3. Skicka detta objekt till din EJS-fil
+    const secAccessLevel = request.session.securityAccessLevel || null;
     response.render('user', {
+        securityAccessLevel: secAccessLevel,
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
         cookieemployeecode: request.cookies.employeecode,
         cookiename: request.cookies.name,
         cookielogintimes: request.cookies.logintimes,
         cookielastlogin: request.cookies.lastlogin,
-        menu: readHTML('./masterframe/menu_back.html'),
+        menu: readHTML('./masterframe/menu.html'),
         content: fullContent
     })
 });

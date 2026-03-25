@@ -73,15 +73,60 @@
                         </tr>
                     </table>
 
-                    <div class="loggedinbutton">
-                        <a href="/api/logout" style="color:#336699;text-decoration:none;">Log out</a>
-                    </div>
 
-                    <table border="0" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <td height="1" width="150" bgcolor="#003366"></td>
-                        </tr>
-                    </table>
+                    <% if (securityAccessLevel==='A' ) { %>
+
+                        <div class="loggedinbutton">
+                            <a href="javascript:void(0)" onClick="showPanicLayer()"
+                                style="color:#cc0000;text-decoration:none;">Panic Button</a>
+                        </div>
+
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td height="1" width="150" bgcolor="#003366"></td>
+                            </tr>
+                        </table>
+                        <div id="panicLayer">
+
+                            <h2 style="margin-top: 0; font-size: 18px; color: #000;">VARNING!</h2>
+                            <p style="margin: 0 0 5px 0; font-size: 14px; color: #333;">This will delete all research
+                                material.</p>
+                            <p style="margin: 0 0 20px 0; font-size: 14px; color: #333;">This operation is
+                                un-reversable.</p>
+
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #333;">To proceed enter Panic Code:
+                            </p>
+
+                            <div
+                                style="display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                                <label for="paniccode"
+                                    style="margin-right: 10px; font-size: 14px; color: #333;">Code:</label>
+                                <input type="password" id="paniccode"
+                                    style="width: 150px; padding: 4px; border: 1px solid #000; box-sizing: border-box;">
+                            </div>
+
+                            <div style="text-align: center;">
+                                <button class="panicbutton" onClick="submitPanic()">Panic</button>
+                                <button class="panicbutton" onClick="showPanicLayer()">Cancel</button>
+                            </div>
+
+                            <div id="panicresult"></div>
+                        </div>
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td height="1" width="150" bgcolor="#003366"></td>
+                            </tr>
+                        </table>
+                        <% } %>
+                            <div class="loggedinbutton">
+                                <a href="/api/logout" style="color:#336699;text-decoration:none;">Log out</a>
+                            </div>
+
+                            <table border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td height="1" width="150" bgcolor="#003366"></td>
+                                </tr>
+                            </table>
                 </div>
 
                 <div id="calcLayer">

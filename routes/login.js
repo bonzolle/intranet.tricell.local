@@ -70,7 +70,7 @@ router.post('/', (req, res) => {
 
             // Starta sessioner
             req.session.userId = row.employeeCode;
-            req.session.securityAccessLevel = row.securityAccessLevel;
+            req.session.securityAccessLevel = infoRow.securityAccessLevel;
 
             // SPARA och sen REDIRECT (Detta skickar headers)
             return req.session.save((err) => {

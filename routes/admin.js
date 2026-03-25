@@ -12,7 +12,9 @@ router.use(express.static('./public'));
 
 router.get('/', checkAuth, (request, response) => {
     const currentUserId = request.session.userId || null
+    const secAccessLevel = request.session.securityAccessLevel
     response.render('user', {
+        securityAccessLevel: secAccessLevel,
         content: 'Logged in',
         userId: currentUserId,
         cookieemployeecode: request.cookies.employeecode,

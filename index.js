@@ -67,10 +67,9 @@ var htmlBottom = readHTML('./masterframe/bottom.html');
 
 app.get('/', function (request, response) {
     const currentUserId = request.session.userId || null;
-
-
-    // 3. Skicka detta objekt till din EJS-fil
+    const secAccessLevel = request.session.securityAccessLevel || null;
     response.render('user', {
+        securityAccessLevel: secAccessLevel,
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
         cookieemployeecode: request.cookies.employeecode,
         cookiename: request.cookies.name,

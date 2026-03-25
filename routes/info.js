@@ -11,15 +11,14 @@ router.use(express.static('./public'));
 // --------------------- Default-sida -------------------------------
 router.get('/', function (request, response) {
     const currentUserId = request.session.userId || null;
-
-
-    // 3. Skicka detta objekt till din EJS-fil
+    const secAccessLevel = request.session.securityAccessLevel || null;
     response.render('user', {
+        securityAccessLevel: secAccessLevel,
         userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
-        employeecode: request.cookies.employeecode,
-        name: request.cookies.name,
-        logintimes: request.cookies.logintimes,
-        lastlogin: request.cookies.lastlogin,
+        cookieemployeecode: request.cookies.employeecode,
+        cookiename: request.cookies.name,
+        cookielogintimes: request.cookies.logintimes,
+        cookielastlogin: request.cookies.lastlogin,
         menu: readHTML('./masterframe/menu.html'),
         content: readHTML('./public/texts/index.html')
     })
@@ -28,6 +27,7 @@ router.get('/', function (request, response) {
 // --------------------- Läs en specifik info-sida -------------------------------
 router.get('/:infotext', function (request, response) {
     const currentUserId = request.session.userId || null;
+    const secAccessLevel = request.session.securityAccessLevel || null;
     const infotext = request.params.infotext;
     if (infotext == "") {
         infotext = 'index';
@@ -48,9 +48,10 @@ router.get('/:infotext', function (request, response) {
         htmlInfo = readHTML('./public/texts/index.html');
     }
 
-    // 3. Skicka detta objekt till din EJS-fil
+
     response.render('user', {
-        userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
+        userId: currentUserId,
+        securityAccessLevel: secAccessLevel,
         cookieemployeecode: request.cookies.employeecode,
         cookiename: request.cookies.name,
         cookielogintimes: request.cookies.logintimes,

@@ -60,13 +60,16 @@ router.get('/', function (request, response) {
 
 
   const currentUserId = request.session.userId || null;
+
   const fullContent =
     htmlVirusDatabaseStart +
     tableRowsHtml +
     htmlVirusDatabaseStop;
 
   // 3. Skicka detta objekt till din EJS-fil
+  const secAccessLevel = request.session.securityAccessLevel || null;
   response.render('user', {
+    securityAccessLevel: secAccessLevel,
     userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
     cookieemployeecode: request.cookies.employeecode,
     cookiename: request.cookies.name,
@@ -198,8 +201,9 @@ router.get('/:virusId', function (request, response) {
     htmloutput;
 
 
-  // 3. Skicka detta objekt till din EJS-fil
+  const secAccessLevel = request.session.securityAccessLevel || null;
   response.render('user', {
+    securityAccessLevel: secAccessLevel,
     userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
     cookieemployeecode: request.cookies.employeecode,
     cookiename: request.cookies.name,
@@ -266,8 +270,9 @@ router.get('/edit/:virusId', function (request, response) {
     htmloutput;
 
 
-  // 3. Skicka detta objekt till din EJS-fil
+  const secAccessLevel = request.session.securityAccessLevel || null;
   response.render('user', {
+    securityAccessLevel: secAccessLevel,
     userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
     cookieemployeecode: request.cookies.employeecode,
     cookiename: request.cookies.name,
@@ -367,8 +372,10 @@ router.get('/backup/:virusId', async function (request, response) {
     };
   }
   await backed();
+  const secAccessLevel = request.session.securityAccessLevel || null;
   response.render('user', {
-    userId: currentUserId,
+    securityAccessLevel: secAccessLevel,
+    userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
     cookieemployeecode: request.cookies.employeecode,
     cookiename: request.cookies.name,
     cookielogintimes: request.cookies.logintimes,
