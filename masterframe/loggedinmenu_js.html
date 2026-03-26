@@ -20,6 +20,37 @@
         document.calc.display.value = eval(document.calc.display.value);
     }
 </script>
+<script>
+    function openHQPopup() {
+        var popup = document.getElementById('hqPopup');
+        popup.style.display = 'block';
+        var steps = 8;
+        for (var i = 0; i < steps; i++) {
+            (function(idx) {
+                setTimeout(function() {
+                    document.getElementById('hqStep' + idx).style.color = '#66bb66';
+                    document.getElementById('hqStep' + idx).innerHTML = '&#10003; ' + document.getElementById('hqStep' + idx).innerText.replace('□ ', '');
+                    if (idx === steps - 1) {
+                        document.getElementById('hqDoneMsg').style.display = 'block';
+                        setTimeout(connectToHQ, 900);
+                    }
+                }, idx * 400);
+            })(i);
+        }
+    }
+    function connectToHQ() {
+        document.getElementById('hqPopup').style.display = 'none';
+        for (var i = 0; i < 8; i++) { document.getElementById('hqStep' + i).style.color = '#000000'; }
+        document.getElementById('hqDoneMsg').style.display = 'none';
+        document.getElementById('hqDot').style.background = '#2a7a2a';
+        document.getElementById('hqStatusText').style.color = '#2a7a2a';
+        document.getElementById('hqStatusText').innerText = 'Connected';
+        var link = document.getElementById('researchDbLink');
+        link.href = 'http://localhost:3000/api/virusdatabase/';
+        link.style.color = '#336699';
+        link.style.cursor = 'pointer';
+    }
+</script>
 
 <script language="JavaScript">
     function refreshChat() {
