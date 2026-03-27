@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 const backupVirus = require('../backup.js');
+const { read } = require('pdfkit');
 
 const dbPath = path.join(__dirname, '..', 'data', 'database', 'data.db');
 const db = new Database(dbPath);
@@ -192,12 +193,22 @@ router.get('/:virusId', function (request, response) {
                 </button></a>
             </div>
 
+                
+    <h1 style="margin-top: 20px;">Research Entries: </h1>
+    <form action="/" id="entryForm" name="entryForm">
+        <b>Heading:</b> <input type="text" id="entryHeadingInput" />
+        <textarea name="newEntry" id="newEntry"></textarea>
+        <input type="button" value="Submit entry" id="submitButton" onClick="submitEntry()"/>
+    </form>
+    <div id="pastEntryBox"></div>
+
+
 </div>
 `;
 
 
   const currentUserId = request.session.userId || null;
-  const fullContent =
+  const fullContent = readHTML("./masterframe/researchentries_css.html") + readHTML("./masterframe/researchentries_js.html") +
     htmloutput;
 
 

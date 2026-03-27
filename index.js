@@ -53,18 +53,14 @@ const getchat = require('./routes/getchat')
 const newvirus = require('./routes/newvirus')
 const newdata = require('./routes/fileuploadvirus')
 const userdatabase = require('./routes/userdatabase')
+const entries = require("./routes/entries")
+const livestream = require("./routes/livestream")
+const activityLog = require('./routes/activityLog.js');
 
 app.use(express.static('./public'));
 
 const readHTML = require('./readHTML.js');
-var htmlHead = readHTML('./masterframe/head.html');
-var htmlHeader = readHTML('./masterframe/header.html');
-var htmlMenu = readHTML('./masterframe/menu.html');
-var htmlInfoStart = readHTML('./masterframe/infoStart.html');
-var htmlIndex = readHTML('./public/texts/index.html');
-var htmlInfoStop = readHTML('./masterframe/infoStop.html');
-var htmlFooter = readHTML('./masterframe/footer.html');
-var htmlBottom = readHTML('./masterframe/bottom.html');
+
 
 app.get('/', function (request, response) {
     const currentUserId = request.session.userId || null;
@@ -100,6 +96,9 @@ app.use('/api/chat', chat)
 app.use('/api/getchat', getchat)
 app.use('/api/data', newdata)
 app.use('/api/userdatabase', userdatabase)
+app.use('/api/entries', entries)
+app.use('/api/livestream', livestream)
+app.use('/api/activitylog', activityLog);
 
 // bestämmer port
 const port = process.env.PORT || 3000;

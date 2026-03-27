@@ -1,6 +1,7 @@
 <%- include('../masterframe/head.html') %>
 
     <% if (userId) { %>
+
         <%- include('../masterframe/loggedinmenu_css.html') %>
             <%- include('../masterframe/loggedinmenu_js.html') %>
                 <div id="loggedinMenuLayer">
@@ -20,7 +21,8 @@
                     <div id="chatLayer">
                         <div id="chatLayerMessages"></div>
                         <div id="chatLayerForm">
-                            <div style="width:230px;text-align:left;font-size:11px;color:#ffffff;">Write message:
+                            <div style="width:230px;text-align:left;font-size:11px;color:#ffffff;">Write
+                                message:
                                 <form action="/" id="chatform">
                                     <input type="hidden" name="MAX_FILE_SIZE" value="50000000" />
                                     <textarea name="chatmessage" id="chatmessage" wrap="hard"
@@ -42,7 +44,24 @@
                             <td height="1" width="150" bgcolor="#003366"></td>
                         </tr>
                     </table>
-
+                    <div class="loggedinbutton">
+                        <a href="http://localhost:3000/api/livestream" style="color:#336699;text-decoration:none;">Virus
+                            Livestream</a>
+                    </div>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td height="1" width="150" bgcolor="#003366"></td>
+                        </tr>
+                    </table>
+                    <div class="loggedinbutton">
+                        <a href="http://localhost:3000/api/activitylog" style="color:#336699;text-decoration:none;">
+                            Activity Log</a>
+                    </div>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td height="1" width="150" bgcolor="#003366"></td>
+                        </tr>
+                    </table>
                     <div class="loggedinbutton">
                         <a href="javascript:void(0)" onClick="javascript:showCalcLayer();"
                             style="color:#336699;text-decoration:none;">Tricell Calculator</a>
@@ -64,10 +83,13 @@
                     </table>
 
                     <div class="loggedinbutton">
-                        <a id="researchDbLink" href="javascript:void(0)" style="color:#aaaaaa;text-decoration:none;cursor:default;">Research Database</a>
+                        <a id="researchDbLink" href="javascript:void(0)"
+                            style="color:#aaaaaa;text-decoration:none;cursor:default;">Research Database</a>
                     </div>
                     <div style="padding:2px 8px 4px 8px;font-size:11px;">
-                        <span id="hqDot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#cc0000;margin-right:5px;vertical-align:middle;"></span><span id="hqStatusText" style="color:#cc0000;">Not connected</span>
+                        <span id="hqDot"
+                            style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#cc0000;margin-right:5px;vertical-align:middle;"></span><span
+                            id="hqStatusText" style="color:#cc0000;">Not connected</span>
                     </div>
 
                     <table border="0" cellspacing="0" cellpadding="0">
@@ -77,12 +99,20 @@
                     </table>
 
                     <div class="loggedinbutton">
-                        <a href="javascript:void(0)" onclick="openHQPopup();" style="color:#336699;text-decoration:none;">Connect to HQ</a>
+                        <a href="javascript:void(0)" onclick="openHQPopup();"
+                            style="color:#336699;text-decoration:none;">Connect to HQ</a>
                     </div>
-                    <table border="0" cellspacing="0" cellpadding="0"><tr><td height="1" width="150" bgcolor="#003366"></td></tr></table>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td height="1" width="150" bgcolor="#003366"></td>
+                        </tr>
+                    </table>
 
-                    <div id="hqPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;background:#ffffff;border:2px solid #003366;width:360px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:monospace;">
-                        <div style="font-weight:bold;font-size:13px;color:#003366;margin-bottom:16px;letter-spacing:2px;">[ TRICELL HQ — SECURE CONNECT ]</div>
+                    <div id="hqPopup"
+                        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;background:#ffffff;border:2px solid #003366;width:360px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:monospace;">
+                        <div
+                            style="font-weight:bold;font-size:13px;color:#003366;margin-bottom:16px;letter-spacing:2px;">
+                            [ TRICELL HQ — SECURE CONNECT ]</div>
                         <div id="hqChecklist" style="font-size:11px;color:#000000;line-height:2;">
                             <div id="hqStep0">&#9633; Checking server up-status...</div>
                             <div id="hqStep1">&#9633; Loading connection bootstrap...</div>
@@ -93,7 +123,9 @@
                             <div id="hqStep6">&#9633; Try/catch connecting...</div>
                             <div id="hqStep7">&#9633; Checking connection status...</div>
                         </div>
-                        <div id="hqDoneMsg" style="display:none;margin-top:14px;color:#2a7a2a;font-size:12px;font-weight:bold;letter-spacing:1px;">You are connected</div>
+                        <div id="hqDoneMsg"
+                            style="display:none;margin-top:14px;color:#2a7a2a;font-size:12px;font-weight:bold;letter-spacing:1px;">
+                            You are connected</div>
                     </div>
 
 
@@ -112,12 +144,14 @@
                         <div id="panicLayer">
 
                             <h2 style="margin-top: 0; font-size: 18px; color: #000;">VARNING!</h2>
-                            <p style="margin: 0 0 5px 0; font-size: 14px; color: #333;">This will delete all research
+                            <p style="margin: 0 0 5px 0; font-size: 14px; color: #333;">This will delete all
+                                research
                                 material.</p>
                             <p style="margin: 0 0 20px 0; font-size: 14px; color: #333;">This operation is
                                 un-reversable.</p>
 
-                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #333;">To proceed enter Panic Code:
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #333;">To proceed enter Panic
+                                Code:
                             </p>
 
                             <div

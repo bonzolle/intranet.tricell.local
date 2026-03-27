@@ -8,6 +8,12 @@ const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.
 const db = new Database(dbPath);
 
 
+// Activity log
+const dbPathA = path.join(__dirname, '..', 'data', 'database', 'activity_log.db');
+const dbA = new Database(dbPathA);
+
+
+
 
 
 router.use(express.static('./public'));
@@ -24,8 +30,6 @@ router.post('/', (req, res) => {
 
     const { femployeecode, fpassword } = req.body;
 
-    console.log(req.body)
-
     // Hämta användaren från tabellen 'employees'
     // I din bild såg kolumnnamnet ut att vara 'employee_code' eller liknande
     try {
@@ -35,6 +39,9 @@ router.post('/', (req, res) => {
         const credentialsStmt = db.prepare("SELECT * FROM user_credentials WHERE employeeCode = ?");
 
         const personnelStmt = db.prepare("SELECT * FROM employees WHERE employeeCode = ?");
+        // activity frågor
+
+        const insertLog = dbA.prepare("INSERT INTO Log (Activity, EmployeeCode, [Name], [Date], [Time]) VALUES (?, ?, ?, ?, ?)");
 
         // 2. Kör frågan (get hämtar första matchande raden)
         const row = credentialsStmt.get(femployeecode);
@@ -58,7 +65,9 @@ router.post('/', (req, res) => {
             let month = dateObj.getMonth() + 1;
             let year = dateObj.getFullYear();
             let str_lastlogin = day + "." + month + "." + year
-
+            const now = new Date();
+            const loginDate = now.toLocaleDateString('sv-SE'); // t.ex. 2026-03-27
+            const timeOfLogin = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
             const query = db.prepare("UPDATE user_credentials SET lastLogin = ? WHERE employeeCode = ?")
 
             query.run(str_lastlogin, femployeecode)
@@ -71,6 +80,20 @@ router.post('/', (req, res) => {
             // Starta sessioner
             req.session.userId = row.employeeCode;
             req.session.securityAccessLevel = infoRow.securityAccessLevel;
+
+            // Acitivity log
+
+            insertLog.run(
+                "Login",
+                row.employeeCode,
+                infoRow.name,
+                loginDate,
+                timeOfLogin
+            );
+
+            dbA.prepare("DELETE FROM Log WHERE ID NOT IN (SELECT ID FROM Log ORDER BY ID DESC LIMIT 150)").run();
+
+
 
             // SPARA och sen REDIRECT (Detta skickar headers)
             return req.session.save((err) => {
