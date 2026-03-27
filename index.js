@@ -52,6 +52,7 @@ const chat = require('./routes/chat')
 const getchat = require('./routes/getchat')
 const newvirus = require('./routes/newvirus')
 const newdata = require('./routes/fileuploadvirus')
+const userdatabase = require('./routes/userdatabase')
 
 app.use(express.static('./public'));
 
@@ -98,6 +99,7 @@ app.use('/api/logout', logout);
 app.use('/api/chat', chat)
 app.use('/api/getchat', getchat)
 app.use('/api/data', newdata)
+app.use('/api/userdatabase', userdatabase)
 
 // bestämmer port
 const port = process.env.PORT || 3000;

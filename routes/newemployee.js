@@ -153,7 +153,8 @@ router.get('/', checkAuth, (request, response) => {
         securityaccesslevel: "",
         allGenders: genders,
         currentSex: "",
-        photo: photosrc
+        photo: photosrc,
+        securityAccessLevel: request.session.securityAccessLevel || null
     })
 });
 
