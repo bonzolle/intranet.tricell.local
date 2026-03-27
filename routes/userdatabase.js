@@ -92,22 +92,22 @@ router.get('/', async (request, response) => {
             <td align="right"><a href="/api/userdatabase/add" style="color:green; text-decoration:none; font-weight:bold; border:1px solid green; padding:5px; border-radius:4px;">[+] Add New User</a></td>
         </tr>
     </table>
-    <div id="table-resp">
-        <div id="table-header">
-            <div class="table-header-cell-light">Username</div>
-            <div class="table-header-cell-dark">Full Name</div>
-            <div class="table-header-cell-light">Level</div>
-            <div class="table-header-cell-light">Status</div>
-            <div class="table-header-cell-light" style="text-align:center;">Edit</div>
-            <div class="table-header-cell-light" style="text-align:center;">Del</div>
+    <div class="table">
+        <div class="row">
+            <div class="light_column_cell">Username</div>
+            <div class="dark_column_cell">Full Name</div>
+            <div class="light_column_cell">Level</div>
+            <div class="light_column_cell">Status</div>
+            <div class="light_column_cell" style="text-align:center;">Edit</div>
+            <div class="light_column_cell" style="text-align:center;">Del</div>
         </div>
-        <div id="table-body">`;
+      `;
 
     try {
         // Hämta data genom att joina users (inloggning) och employee (profilnamn/nivå)
         const result = db.prepare(`
-            SELECT users.employeeCode, employee.[name], employee.securityAccessLevel, users.lockout 
-            FROM users LEFT JOIN employee ON users.employeeCode = employee.employeeCode`).all();
+            SELECT user_credentials.employeeCode, employees.[name], employees.securityAccessLevel, user_credentials.lockout 
+            FROM user_credentials LEFT JOIN employees ON user_credentials.employeeCode = employees.employeeCode`).all();
 
         for(let user of result) {
             let lvlStyle = user.securityAccessLevel === 'A' ? "color:red; font-weight:bold;" : "";
@@ -117,15 +117,15 @@ router.get('/', async (request, response) => {
             let statusText = isLocked ? "<b style='color:red'>LOCKED</b>" : "Active";
             
             htmlOutput += `
-            <div class="resp-table-row">
-                <div class="table-body-cell">${user.employeeCode}</div>
-                <div class="table-body-cell-bigger">${user.name || '<i>No name set</i>'}</div>
-                <div class="table-body-cell" style="${lvlStyle}">${user.securityAccessLevel || 'C'}</div>
-                <div class="table-body-cell">${statusText}</div>
-                <div class="table-body-cell" style="text-align:center;">
+            <div class="row">
+                <div class="table_cell_values">${user.employeeCode}</div>
+                <div class="table_cell_values_name">${user.name || '<i>No name set</i>'}</div>
+                <div class="table_cell_values" style="${lvlStyle}">${user.securityAccessLevel || 'C'}</div>
+                <div class="table_cell_values">${statusText}</div>
+                <div class="table_cell_values" style="text-align:center;">
                     <a href="/api/userdatabase/edit/${user.employeeCode}" style="color:#0056b3; font-weight:bold; text-decoration:none;">[E]</a>
                 </div>
-                <div class="table-body-cell" style="text-align:center;">
+                <div class="table_cell_values" style="text-align:center;">
                     <a href="/api/userdatabase/delete/${user.employeeCode}" style="color:red; text-decoration:none;" onclick="return confirm('Radera?');">[X]</a>
                 </div>
             </div>`;
@@ -199,7 +199,7 @@ router.post('/add', async (request, response) => {
 
     try {
         // DUBBLETTKONTROLL: Kolla om användaren redan finns i databasen
-        let check = db.prepare(`SELECT employeeCode FROM users WHERE employeeCode='${user}'`);
+        let check = db.prepare(`SELECT employeeCode FROM user_credentials WHERE employeeCode='${user}'`);
         if (check.length > 0) {
             return response.send(`<h2>Error</h2><p>User <b>${user}</b> already exists!</p><a href='javascript:history.back()'>Back</a>`);
         }
@@ -209,8 +209,8 @@ router.post('/add', async (request, response) => {
         
         // Utför INSERT i båda tabellerna
         // 'lockout' sätts till NULL för att kontot ska vara aktivt direkt
-        db.prepare(`INSERT INTO users (employeeCode, passwd, lockout, logintimes) VALUES ('${user}', '${hashedPass}', NULL, 0)`);
-        db.prepare(`INSERT INTO employee (employeeCode, [name], securityAccessLevel) VALUES ('${user}', '${name}', '${lvl}')`);
+        db.prepare(`INSERT INTO user_credentials (employeeCode, passwd, lockout, logintimes) VALUES ('${user}', '${hashedPass}', NULL, 0)`);
+        db.prepare(`INSERT INTO employees (employeeCode, [name], securityAccessLevel) VALUES ('${user}', '${name}', '${lvl}')`);
         
         response.redirect('/api/userdatabase');
     } catch (err) { response.send("Error: " + err.message); }
@@ -224,7 +224,7 @@ router.get('/edit/:username', async (request, response) => {
     
     let user = request.params.username;
     try {
-        let res = db.prepare(`SELECT users.lockout, employee.[name], employee.securityAccessLevel FROM users LEFT JOIN employee ON users.employeeCode = employee.employeeCode WHERE users.employeeCode='${user}'`).all();
+        let res = db.prepare(`SELECT user_credentials.lockout, employees.[name], employees.securityAccessLevel FROM user_credentials LEFT JOIN employees ON user_credentials.employeeCode = employees.employeeCode WHERE user_credentials.employeeCode='${user}'`).all();
         let data = res[0];
         
         // Kontrollera om kontot är låst för att förifylla dropdownen korrekt
@@ -277,13 +277,13 @@ router.post('/edit/:username', async (request, response) => {
         if (newPass && newPass.trim() !== "") {
             if (newPass.length > 7) return response.send("Error: Pass max 7");
             let hashedPass = crypto.createHash('md5').update(newPass).digest('hex');
-            db.prepare(`UPDATE users SET lockout=${lockValue}, passwd='${hashedPass}' WHERE employeeCode='${user}'`);
+            db.prepare(`UPDATE user_credentials SET lockout=${lockValue}, passwd='${hashedPass}' WHERE employeeCode='${user}'`);
         } else {
             // Annars uppdatera bara status (lockout)
-            db.prepare(`UPDATE users SET lockout=${lockValue} WHERE employeeCode='${user}'`);
+            db.prepare(`UPDATE user_credentials SET lockout=${lockValue} WHERE employeeCode='${user}'`);
         }
         // Uppdatera profilinformationen i employee-tabellen
-        db.prepare(`UPDATE employee SET [name]='${name}', securityAccessLevel='${lvl}' WHERE employeeCode='${user}'`);
+        db.prepare(`UPDATE employees SET [name]='${name}', securityAccessLevel='${lvl}' WHERE employeeCode='${user}'`);
         
         response.redirect('/api/userdatabase');
     } catch (err) { response.send(err.message); }
@@ -297,8 +297,8 @@ router.get('/delete/:username', async (request, response) => {
     
     try {
         // Radera från båda tabellerna för att hålla databasen ren (Referentiell integritet)
-        db.prepare(`DELETE FROM users WHERE employeeCode='${request.params.username}'`);
-        db.prepare(`DELETE FROM employee WHERE employeeCode='${request.params.username}'`);
+        db.prepare(`DELETE FROM user_credentials WHERE employeeCode='${request.params.username}'`);
+        db.prepare(`DELETE FROM employees WHERE employeeCode='${request.params.username}'`);
         
         response.redirect('/api/userdatabase');
     } catch (err) { response.send(err.message); }
