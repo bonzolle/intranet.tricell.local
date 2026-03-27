@@ -268,7 +268,7 @@ router.post('/edit/:username', async (request, response) => {
     let user = request.params.username;
     let name = request.body.fullName;
     // Om status sätts till false skickar vi 'NULL' till SQL för att låsa upp kontot helt
-    let lockValue = (request.body.lockout === 'true') ? 'true' : 'NULL';
+    let lockValue = (request.body.lockout === 'true') ? 'true' : '0';
     let lvl = request.body.securityLevel;
     let newPass = request.body.password;
 
@@ -277,13 +277,14 @@ router.post('/edit/:username', async (request, response) => {
         if (newPass && newPass.trim() !== "") {
             if (newPass.length > 7) return response.send("Error: Pass max 7");
             let hashedPass = crypto.createHash('md5').update(newPass).digest('hex');
-            db.prepare(`UPDATE user_credentials SET lockout=${lockValue}, passwd='${hashedPass}' WHERE employeeCode='${user}'`);
+            db.prepare(`UPDATE user_credentials SET lockout=?, password=? WHERE employeeCode=?`).run(lockValue, hashedPass, user);
         } else {
             // Annars uppdatera bara status (lockout)
-            db.prepare(`UPDATE user_credentials SET lockout=${lockValue} WHERE employeeCode='${user}'`);
+            db.prepare(`UPDATE user_credentials SET lockout=? WHERE employeeCode=?`).run(lockValue, user);
         }
         // Uppdatera profilinformationen i employee-tabellen
-        db.prepare(`UPDATE employees SET [name]='${name}', securityAccessLevel='${lvl}' WHERE employeeCode='${user}'`);
+        db.prepare(`UPDATE employees SET name=?, securityAccessLevel=? WHERE employeeCode=?`).run(name, lvl, user);
+        
         
         response.redirect('/api/userdatabase');
     } catch (err) { response.send(err.message); }
@@ -297,8 +298,8 @@ router.get('/delete/:username', async (request, response) => {
     
     try {
         // Radera från båda tabellerna för att hålla databasen ren (Referentiell integritet)
-        db.prepare(`DELETE FROM user_credentials WHERE employeeCode='${request.params.username}'`);
-        db.prepare(`DELETE FROM employees WHERE employeeCode='${request.params.username}'`);
+        db.prepare(`DELETE FROM user_credentials WHERE employeeCode=?`).run(request.params.username);
+        db.prepare(`DELETE FROM employees WHERE employeeCode=?`).run(request.params.username);
         
         response.redirect('/api/userdatabase');
     } catch (err) { response.send(err.message); }
