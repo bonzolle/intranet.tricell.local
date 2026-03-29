@@ -1,0 +1,7 @@
+# Ignorera alla SQLite-databaser
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignorera loggfiler
+*.log
