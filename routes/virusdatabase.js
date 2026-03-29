@@ -23,12 +23,14 @@ var htmlVirusimagesCSS = readHTML('./masterframe/virusimages_css.html');
 
 
 router.get('/', function (request, response) {
+  const secAccessLevel = request.session.securityAccessLevel || null;
   let tableRowsHtml = "";
   // läs in och extrahera värdena ur XML filen
   try {
     const combinedData = db.prepare(`
       SELECT 
         o.id as virusnummer,
+        o.objectStatus,
         o.objectNumber, 
         o.objectName, 
         o.objectCreatedDate, 
@@ -41,11 +43,13 @@ router.get('/', function (request, response) {
       ORDER BY o.objectNumber ASC
     `).all();
 
-    console.log(combinedData)
+
 
     combinedData.forEach(virus => {
-      tableRowsHtml += `
-    <div class="row">
+      if (virus.objectStatus === 'archive' && secAccessLevel !== 'A') { } else {
+        const archiveClass = (virus.objectStatus === 'archive') ? 'row-archived' : 'row';
+        tableRowsHtml += `
+    <div class="${archiveClass}">
         <div class="table_cell_values">${virus.objectNumber}</div>
         <div class="table_cell_values_name"><a href="/api/virusdatabase/${virus.virusnummer}">${virus.objectName} </a></div>
         <div class="table_cell_values">${virus.objectCreatedDate}</div>
@@ -54,7 +58,7 @@ router.get('/', function (request, response) {
         <div class="table_cell_values">${virus.lastChangedDate || '0'}</div>
 
     </div>`;
-
+      }
     });
   } catch (error) {
     console.error("Databasfel:", error);
@@ -71,7 +75,7 @@ router.get('/', function (request, response) {
     htmlVirusDatabaseStop;
 
   // 3. Skicka detta objekt till din EJS-fil
-  const secAccessLevel = request.session.securityAccessLevel || null;
+
   response.render('user', {
     securityAccessLevel: secAccessLevel,
     userId: currentUserId, // Nu är variabeln DEFINIERAD för EJS
@@ -92,6 +96,17 @@ router.get('/:virusId', function (request, response) {
   const functionread = getVirusImagesHTML(targetId);
 
   let attachmentsHTML = '';
+
+  let hardcodedtest = 'open'
+
+  // toggle
+  let level = request.session.securityAccessLevel ? request.session.securityAccessLevel.toString().trim().toUpperCase() : "";
+  const btnText = (hardcodedtest === 'open') ? 'Archive Object' : 'Open Object';
+
+  let toggleUrl = (level === 'A')
+    ? `/api/virusdatabase/toggle/${safeVirusId}`
+    : `javascript:alert('Access denied. Incorrect permissions.');`;
+
 
   if (fs.existsSync(dirPath)) {
     const files = fs.readdirSync(dirPath);
@@ -180,7 +195,9 @@ router.get('/:virusId', function (request, response) {
             <span class="icon_edit">📝</span>
         </div>
     </div>
+
 </div>
+<a href="${toggleUrl}" class='edit-btn'>${btnText}</a>
 <div class="addNewFile">
     <p>Upload new file</p>
     <span class="icon_add_file"><a href="/api/data/${safeVirusId}">📝</a></span>
@@ -228,7 +245,38 @@ ${functionread}
   })
 });
 
+// --------------------- Växla Open/Archive -------------------
+router.get('/toggle/:id', async function (request, response) {
+  const targetId = request.params.id;
 
+  let userLevel = request.session.securityAccessLevel || "";
+  userLevel = userLevel.toString().trim().toUpperCase();
+
+  if (userLevel !== 'A') {
+    return response.status(403).send("<h1>Nekat</h1><p>Bara administratörer (A) får göra detta.</p>");
+  }
+
+  try {
+    // 1. Använd .get() för att faktiskt köra frågan och hämta en rad
+    // 2. Använd ? som placeholder för att undvika SQL-injektion
+    const row = db.prepare(`SELECT objectStatus FROM ResearchObjects WHERE id = ?`).get(targetId);
+
+    // Kontrollera om raden faktiskt hittades
+    if (row) {
+      const currentStatus = row.objectStatus;
+      const newStatus = (currentStatus === 'open') ? 'archive' : 'open';
+
+      // 3. Kör UPDATE med .run() och skicka med variablerna som argument
+      db.prepare(`UPDATE ResearchObjects SET objectStatus = ? WHERE id = ?`)
+        .run(newStatus, targetId);
+    }
+
+    response.redirect('/api/virusdatabase/' + targetId);
+  } catch (error) {
+    console.error(error); // Bra att logga felet i konsolen så du ser vad som händer
+    response.status(500).send("Update failed.");
+  }
+});
 // edit sidan
 router.get('/edit/:virusId', function (request, response) {
   const targetId = request.params.virusId;

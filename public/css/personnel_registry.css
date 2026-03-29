@@ -91,3 +91,15 @@
 a.special-link {
 	color: blue;
 }
+
+
+.row-archived {
+	display: table-row;
+	background-color: #e0e0e0 !important;
+	color: #777 !important;
+}
+
+
+.row-archived a {
+	color: #666 !important;
+}
