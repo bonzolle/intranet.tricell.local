@@ -7,7 +7,6 @@ const dbPath = path.join(__dirname, '..', 'data', 'database', 'tricell_intranet.
 const db = new Database(dbPath);
 const checkAuth = require('../authMiddleware.js'); // Se till att sökvägen stämmer
 
-
 router.use(express.static('./public'));
 
 router.get('/', checkAuth, (request, response) => {

@@ -56,6 +56,7 @@ const userdatabase = require('./routes/userdatabase')
 const entries = require("./routes/entries")
 const livestream = require("./routes/livestream")
 const activityLog = require('./routes/activityLog.js');
+const editvirusimage = require('./routes/editvirusimage.js');
 
 app.use(express.static('./public'));
 
@@ -99,6 +100,7 @@ app.use('/api/userdatabase', userdatabase)
 app.use('/api/entries', entries)
 app.use('/api/livestream', livestream)
 app.use('/api/activitylog', activityLog);
+app.use('/api/editvirusimage', editvirusimage);
 
 // bestämmer port
 const port = process.env.PORT || 3000;

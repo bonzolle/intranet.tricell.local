@@ -8,6 +8,8 @@ const fs = require('fs');
 
 const backupVirus = require('../backup.js');
 const { read } = require('pdfkit');
+const { getVirusImagesHTML } = require('./virusimages.js'); // Importera funktionen för att generera HTML för virusbilder'
+const { get } = require('http');
 
 const dbPath = path.join(__dirname, '..', 'data', 'database', 'data.db');
 const db = new Database(dbPath);
@@ -15,6 +17,7 @@ const db = new Database(dbPath);
 router.use(express.static('./public'));
 var htmlVirusDatabaseStart = readHTML('./masterframe/virusdatabasestart.html')
 var htmlVirusDatabaseStop = readHTML('./masterframe/virusdatabasestop.html')
+var htmlVirusimagesCSS = readHTML('./masterframe/virusimages_css.html');
 
 
 
@@ -86,6 +89,7 @@ router.get('/:virusId', function (request, response) {
   const targetId = request.params.virusId;
   const safeVirusId = String(targetId).replace(/[^a-zA-Z0-9_-]/g, '');
   const dirPath = path.join(__dirname, '..', 'data', safeVirusId, 'attachments');
+  const functionread = getVirusImagesHTML(targetId);
 
   let attachmentsHTML = '';
 
@@ -202,13 +206,12 @@ router.get('/:virusId', function (request, response) {
     </form>
     <div id="pastEntryBox"></div>
 
-
+${functionread}
 </div>
 `;
 
-
   const currentUserId = request.session.userId || null;
-  const fullContent = readHTML("./masterframe/researchentries_css.html") + readHTML("./masterframe/researchentries_js.html") +
+  const fullContent =
     htmloutput;
 
 
@@ -229,7 +232,6 @@ router.get('/:virusId', function (request, response) {
 // edit sidan
 router.get('/edit/:virusId', function (request, response) {
   const targetId = request.params.virusId;
-
 
   const virus = db.prepare('SELECT * FROM ResearchObjects WHERE id = ?').get(targetId)
   console.log(targetId)
@@ -274,7 +276,6 @@ router.get('/edit/:virusId', function (request, response) {
     </div>
     </form>
 `;
-
 
   const currentUserId = request.session.userId || null;
   const fullContent =
